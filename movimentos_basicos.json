@@ -1,0 +1,12 @@
+{
+    "Matar e Pilhar":{
+        "nome": "Comunhão",
+        "gatilho": "Quando chamar pela ajuda de sua divindade em um momento de necessidade, escolha uma bênção e role+SAB",
+        "atributo": "sab",
+        "mod": 0,
+        "sucesso_total": "Com 10+, sua divindade vai interferir com a bênção em seu favor, o MJ lhe dirá como.",
+        "sucesso_parcial": "Com 7-9, você ainda tem sua bênção, mas escolha uma exigência:",
+        "detalhes": "",
+        "critico": ""
+    }
+}
