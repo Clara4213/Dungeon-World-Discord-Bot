@@ -1627,6 +1627,7 @@ async def importar_ficha(interaction: discord.Interaction,
     ''', (user_id, ))
     ativo = cursor.fetchone()
 
+
     if ativo is None:
         cursor.execute(
             '''
