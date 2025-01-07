@@ -225,6 +225,7 @@ async def on_ready():
 import json
 
 # Conectar ao banco de dados
+
 conn = psycopg2.connect('postgresql://postgres:uuxaHWiihSzkpeMxkhvktEuwesHFfUxC@postgres.railway.internal:5432/railway')
 cursor = conn.cursor()
 
@@ -232,7 +233,7 @@ cursor = conn.cursor()
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS fichas (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER,
+    user_id BIGINT,
     nome TEXT,
     aparencia TEXT,
     classe TEXT,
