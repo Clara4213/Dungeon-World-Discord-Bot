@@ -669,7 +669,9 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
     WHERE id = ?
     ''', (novacarga, ficha_id))
     conn.commit()
-
+    cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+    nome = cursor.fetchone()[0]
+    
     cursor.execute("SELECT carga_atual FROM fichas WHERE id = ?", (ficha_id, ))
     cargaatual = cursor.fetchone()[0]
 
@@ -1734,7 +1736,7 @@ async def atributo(interaction: discord.Interaction,
     cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
                    (ficha_id, ))
     debilidades = cursor.fetchone()[0]
-    if debilidades == None or debilidades[0] == None:
+    if debilidades == None:
         debilidades = ""
     debilidades = debilidades.lower()
     if atributo == "for" and "fraco" in debilidades:
@@ -1801,7 +1803,7 @@ async def debilidade(interaction: discord.Interaction, debilidade: str):
                        (ficha_id, ))
         debilidades = cursor.fetchone()[0]
 
-        if debilidades == None or debilidades[0] == None:
+        if debilidades == None:
             debilidades = ""
 
         if debilidade not in debilidades:
@@ -1980,7 +1982,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
             cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
                            (ficha_id, ))
             debilidades = cursor.fetchone()[0]
-            if debilidades == None or debilidades[0] == None:
+            if debilidades == None:
                 debilidades = ""
             debilidades = debilidades.lower()
             if movimento['atributo'] == "for" and "fraco" in debilidades:
@@ -2203,7 +2205,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
                            (ficha_id, ))
             debilidades = cursor.fetchone()[0]
-            if debilidades == None or debilidades[0] == None:
+            if debilidades == None:
                 debilidades = ""
             debilidades = debilidades.lower()
             if movimento['atributo'] == "for" and "fraco" in debilidades:
