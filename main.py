@@ -231,7 +231,7 @@ cursor = conn.cursor()
 # Criação da tabela de fichas
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS fichas (
-    id INTEGER SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INTEGER,
     nome TEXT,
     aparencia TEXT,
