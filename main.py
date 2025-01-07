@@ -160,7 +160,7 @@ def formatar_json(json):
         "hp_atual": "",
         "hp_max": "",
         "armadura": "",
-        "for": "",
+        "str": "",
         "des": "",
         "con": "",
         "int": "",
@@ -189,7 +189,7 @@ def formatar_json(json):
     novojson["hp_atual"] = int(json.get('hitPoints'))
     novojson["hp_max"] = int(json.get('maxHitPoints'))
     novojson["armadura"] = int(json.get('armor'))
-    novojson["for"] = int(json.get('strength'))
+    novojson["str"] = int(json.get('strength'))
     novojson["des"] = int(json.get('dexterity'))
     novojson["con"] = int(json.get('constitution'))
     novojson["int"] = int(json.get('intelligence'))
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS fichas (
     hp_atual INTEGER,
     hp_max INTEGER,
     armadura INTEGER,
-    for INTEGER,
+    str INTEGER,
     des INTEGER,
     con INTEGER,    
     int INTEGER,           
@@ -392,7 +392,7 @@ async def listar_fichas(interaction: discord.Interaction):
     app_commands.Choice(name="Vida Atual", value="hp_atual"),
     app_commands.Choice(name="Vida Máxima", value="hp_max"),
     app_commands.Choice(name="Armadura", value="armadura"),
-    app_commands.Choice(name="Força", value="for"),
+    app_commands.Choice(name="Força", value="str"),
     app_commands.Choice(name="Destreza", value="des"),
     app_commands.Choice(name="Constituição", value="con"),
     app_commands.Choice(name="Inteligência", value="int"),
@@ -407,7 +407,7 @@ async def definir(interaction: discord.Interaction, parametro: str,
                   valor: str):
 
     if parametro in [
-            "nivel", "hp_atual", "hp_max", "armadura", "for", "des", "con",
+            "nivel", "hp_atual", "hp_max", "armadura", "str", "des", "con",
             "int", "sab", "car", "carga_max", "carga_atual", "sorte"
     ]:
         valor = int(valor)
@@ -461,7 +461,7 @@ async def definir(interaction: discord.Interaction, parametro: str,
     app_commands.Choice(name="Vida Atual", value="hp_atual"),
     app_commands.Choice(name="Vida Máxima", value="hp_max"),
     app_commands.Choice(name="Armadura", value="armadura"),
-    app_commands.Choice(name="Força", value="for"),
+    app_commands.Choice(name="Força", value="str"),
     app_commands.Choice(name="Destreza", value="des"),
     app_commands.Choice(name="Constituição", value="con"),
     app_commands.Choice(name="Inteligência", value="int"),
@@ -1486,7 +1486,7 @@ async def exportar_ficha(interaction: discord.Interaction,
             'hp_atual': ficha[12],
             'hp_max': ficha[13],
             'armadura': ficha[14],
-            'for': ficha[15],
+            'str': ficha[15],
             'des': ficha[16],
             'con': ficha[17],
             'int': ficha[18],
@@ -1580,7 +1580,7 @@ async def importar_ficha(interaction: discord.Interaction,
         'hp_atual': ficha_json.get('hp_atual'),
         'hp_max': ficha_json.get('hp_max'),
         'armadura': ficha_json.get('armadura'),
-        'for': ficha_json.get('for'),
+        'str': ficha_json.get('str'),
         'des': ficha_json.get('des'),
         'con': ficha_json.get('con'),
         'int': ficha_json.get('int'),
@@ -1602,7 +1602,7 @@ async def importar_ficha(interaction: discord.Interaction,
         '''
     INSERT INTO fichas (user_id, nome, aparencia, classe, xp, nivel, alinhamento, 
             alinhamento_detalhe, raca, raca_texto, dado_dano, hp_atual, 
-            hp_max, armadura, for, des, con, int, sab, car, 
+            hp_max, armadura, str, des, con, int, sab, car, 
             carga_max, carga_atual, inventario, vinculos, movimentos, 
             sorte, debilidades, notas)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -1611,7 +1611,7 @@ async def importar_ficha(interaction: discord.Interaction,
           ficha_dict['alinhamento'], ficha_dict['alinhamento_detalhe'],
           ficha_dict['raca'], ficha_dict['raca_texto'],
           ficha_dict['dado_dano'], ficha_dict['hp_atual'],
-          ficha_dict['hp_max'], ficha_dict['armadura'], ficha_dict['for'],
+          ficha_dict['hp_max'], ficha_dict['armadura'], ficha_dict['str'],
           ficha_dict['des'], ficha_dict['con'], ficha_dict['int'],
           ficha_dict['sab'], ficha_dict['car'], ficha_dict['carga_max'],
           ficha_dict['carga_atual'], ficha_dict['inventario'],
@@ -1693,7 +1693,7 @@ async def roll(interaction: discord.Interaction, expressao: str = "2d6"):
 @app_commands.describe(atributo="Qual atributo usar",
                        modificador="Modificador na rolagem")
 @app_commands.choices(atributo=[
-    app_commands.Choice(name="Força", value="for"),
+    app_commands.Choice(name="Força", value="str"),
     app_commands.Choice(name="Destreza", value="des"),
     app_commands.Choice(name="Constituição", value="con"),
     app_commands.Choice(name="Inteligência", value="int"),
@@ -1725,7 +1725,7 @@ async def atributo(interaction: discord.Interaction,
     tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
     mod = modificador  # Modificador aritmético (ex: +2, -1, *4)
 
-    if atributo in ["for", "des", "con", "int", "sab", "car"]:
+    if atributo in ["str", "des", "con", "int", "sab", "car"]:
         cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?",
                        (ficha_id, ))
         atributomod = cursor.fetchone()[0]
@@ -1739,7 +1739,7 @@ async def atributo(interaction: discord.Interaction,
     if debilidades == None:
         debilidades = ""
     debilidades = debilidades.lower()
-    if atributo == "for" and "fraco" in debilidades:
+    if atributo == "str" and "fraco" in debilidades:
         mod = mod - 1
     elif atributo == "des" and "trêmulo" in debilidades:
         mod = mod - 1
@@ -1970,7 +1970,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
 
         if "atributo" in movimento_especifico:
             atributo = movimento_especifico['atributo']
-            if atributo in ["for", "des", "con", "int", "sab", "car"]:
+            if atributo in ["str", "des", "con", "int", "sab", "car"]:
                 cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?",
                                (ficha_id, ))
                 atributo = cursor.fetchone()[0]
@@ -1985,7 +1985,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
             if debilidades == None:
                 debilidades = ""
             debilidades = debilidades.lower()
-            if movimento['atributo'] == "for" and "fraco" in debilidades:
+            if movimento['atributo'] == "str" and "fraco" in debilidades:
                 mod = mod - 1
             elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
                 mod = mod - 1
@@ -2193,7 +2193,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
 
         if "atributo" in movimento:
             atributo = movimento['atributo']
-            if atributo in ["for", "des", "con", "int", "sab", "car"]:
+            if atributo in ["str", "des", "con", "int", "sab", "car"]:
                 cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?",
                                (ficha_id, ))
                 atributo = cursor.fetchone()[0]
@@ -2208,7 +2208,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             if debilidades == None:
                 debilidades = ""
             debilidades = debilidades.lower()
-            if movimento['atributo'] == "for" and "fraco" in debilidades:
+            if movimento['atributo'] == "str" and "fraco" in debilidades:
                 mod = mod - 1
             elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
                 mod = mod - 1
