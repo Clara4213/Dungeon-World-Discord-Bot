@@ -286,7 +286,7 @@ async def listar_fichas(interaction: discord.Interaction):
 
         await interaction.response.send_message(resposta)
     else:
-        await interaction.response.send_message('Você não tem fichas criadas. Use !criar_ficha para começar.')
+        await interaction.response.send_message('Você não tem fichas criadas. Use /criar_ficha para começar.')
 
 @bot.tree.command(name="definir", description="Edita diretamente um valor em sua ficha ativa")
 @app_commands.describe(
@@ -358,7 +358,7 @@ async def definir(interaction: discord.Interaction, parametro:str, valor:str):
 
         await interaction.response.send_message(f'O valor {parametro} da sua ficha ativa foi alterado para {valor}.')
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="mostrar", description="Retorna diretamente um valor da sua ficha ativa")
 @app_commands.describe(
@@ -501,7 +501,7 @@ async def add_item(interaction: discord.Interaction, nome:str, descricao:str ,qu
 
 
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="rem_item", description="Exclui um item da sua ficha ativa")
 @app_commands.describe(
@@ -519,7 +519,7 @@ async def rem_item(interaction: discord.Interaction, nome_item:str):
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -592,7 +592,7 @@ async def usar_item(interaction: discord.Interaction, nome_item:str, quantidade:
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -677,7 +677,7 @@ async def vender_item(interaction: discord.Interaction, nome_item:str, quantidad
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -777,7 +777,7 @@ async def mostrar_item(interaction: discord.Interaction, nome_item:str):
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -860,7 +860,7 @@ async def add_vinculo(interaction: discord.Interaction, nome:str, descricao:str=
 
         await interaction.response.send_message(f'O vínculo com {nome} foi adicionado')
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="rem_vinc", description="Exclui um vínculo da sua ficha ativa")
 @app_commands.describe(
@@ -878,7 +878,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo:str):
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
     cursor.execute("SELECT vinculos FROM fichas WHERE id = ?", (ficha_id,))
@@ -931,7 +931,7 @@ async def mostrar_vinculo(interaction: discord.Interaction, nome_vinculo:str):
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -1030,7 +1030,7 @@ async def add_mov_roll(interaction: discord.Interaction, nome:str, gatilho:str,a
 
         await interaction.response.send_message(f'O movimento {nome} foi adicionado')
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="add_mov_tex", description="Adiciona um movimento descritivo à sua ficha ativa")
 @app_commands.describe(
@@ -1091,7 +1091,7 @@ async def add_mov_tex(interaction: discord.Interaction, nome:str, gatilho:str=""
 
         await interaction.response.send_message(f'O movimento {nome} foi adicionado')
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="mostrar_mov", description="Mostra um movimento da sua ficha ativa")
 @app_commands.describe(
@@ -1109,7 +1109,7 @@ async def mostrar_mov(interaction: discord.Interaction, nome_movimento:str):
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -1152,7 +1152,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento:str):
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
         return
 
 
@@ -1667,7 +1667,7 @@ async def xp(interaction: discord.Interaction, quantidade:int=1):
 
         await interaction.response.send_message(f'{nome} ganhou {quantidade} de xp.')
     else:
-        await interaction.response.send_message('Você não possui uma ficha ativa. Use !mudar_ficha para selecionar ou !criar_ficha para criar uma.')
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="help", description="Lista os comandos")
 async def help(interaction: discord.Interaction):
@@ -1703,7 +1703,7 @@ async def help(interaction: discord.Interaction):
 
     `/rem_vinculo` - Remove um vínculo à ficha ativa do jogador.
 
-    `/mostrar_vínculo - Mostra um vínculo da ficha ativa do jogador.
+    `/mostrar_vínculo` - Mostra um vínculo da ficha ativa do jogador.
 
     `/add_mov_roll` - Adiciona um movimento com rolagem à ficha ativa do jogador.
 
