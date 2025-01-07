@@ -2170,8 +2170,8 @@ async def calamidade(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="mb", description="Use um movimento básico")
-@app_commands.describe(movimento="O nome exato do movimento")
-async def mb(interaction: discord.Interaction, movimento: str):
+@app_commands.describe(movimento="O nome exato do movimento", modificador = "Modificador da rolagem")
+async def mb(interaction: discord.Interaction, movimento: str, modificador: int = 0):
     user_id = interaction.user.id
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
@@ -2199,7 +2199,7 @@ async def mb(interaction: discord.Interaction, movimento: str):
             else:
                 atributo = 0
             mod = movimento['mod']
-
+            mod = mod+modificador
             cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
                            (ficha_id, ))
             debilidades = cursor.fetchone()[0]

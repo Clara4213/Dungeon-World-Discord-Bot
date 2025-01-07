@@ -282,5 +282,23 @@
         "fracasso": "A MJ escolhe um tesouro para vocês",
         "detalhes": "Tesouros\n● 1 - Algo exótico. Só a MJ sabe exatamente o que é e pra que serve…\n● 2 - Material para confecção de algo maior, seja alquímico, mágico ou mecânico.\n● 3 - Informações úteis.\n● 4 - Suprimentos, 3 usos\n● 5 - Itens valiosos, valem 5d6 de ouro, peso 1.\n● 6 - Um item mágico. Rolar/Escolher essa opção mais de uma vez não aumenta a quantidade, e sim a qualidade.",
         "critico": ""
+    },
+    "desafiar o perigo": {
+        "nome": "Desafiar o Perigo",
+        "gatilho": "Quando agir apesar de qualquer perigo iminente ou sofrer alguma calamidade, diga como lidará com a situação e role. Se o fizer...\n• ... à força, +FOR;\n• ... saindo do caminho ou agindo rápido, +DES;\n• ... resistindo, +CON;\n• ... com pensamento rápido, +INT;\n• ... pela fortitude mental, +SAB;\n• ... usando charme e trato social, +CAR.",
+        "atributo": "",
+        "mod": 0,
+        "sucesso_total": "Com 10+, realize o que pretendia sem ser afetado pela ameaça",
+        "sucesso_parcial": "Com 7-9, você tropeça, hesita, ou se contorce: o MJ lhe oferecerá um resultado pior, uma barganha difícil ou uma escolha desagradável.",
+        "fracasso": "",
+        "detalhes": "",
+        "critico": ""
     }
+
+
+    
+    
+    . 
+
+
 }
