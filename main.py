@@ -225,7 +225,7 @@ async def on_ready():
 import json
 
 # Conectar ao banco de dados
-conn = psycopg2.connect('postgresql://postgres:uuxaHWiihSzkpeMxkhvktEuwesHFfUxC@postgres.railway.internal:5432/railway', check_same_thread=False)
+conn = psycopg2.connect('postgresql://postgres:uuxaHWiihSzkpeMxkhvktEuwesHFfUxC@postgres.railway.internal:5432/railway')
 cursor = conn.cursor()
 
 # Criação da tabela de fichas
