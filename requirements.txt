@@ -2,3 +2,4 @@ discord.py
 Thread
 python-dotenv
 Flask
+psycopg2

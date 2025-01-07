@@ -10,6 +10,7 @@ import random
 import json
 from flask import Flask
 from threading import Thread
+import psycopg2
 
 # Create a Discord client instance and set the command prefix
 intents = discord.Intents.all()
@@ -221,11 +222,10 @@ async def on_ready():
 
 # Set the commands for your bot
 
-import sqlite3
 import json
 
 # Conectar ao banco de dados
-conn = sqlite3.connect('rpg.db', check_same_thread=False)
+conn = psycopg2.connect('junction.proxy.rlwy.net', check_same_thread=False)
 cursor = conn.cursor()
 
 # Criação da tabela de fichas
