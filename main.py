@@ -201,7 +201,7 @@ def formatar_json(json):
     novojson["inventario"] = "[]"
     novojson["vinculos"] = "[]"
     novojson["movimentos"] = "[]"
-    novojson["sorte"] = ""
+    novojson["sorte"] = 0
     novojson["notas"] = ""
 
     return novojson
