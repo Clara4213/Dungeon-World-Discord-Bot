@@ -287,11 +287,12 @@ async def criar_ficha(interaction: discord.Interaction, nome: str):
         '''
     INSERT INTO fichas (user_id, nome)
     VALUES (%s, %s)
+    RETURNING id
     ''', (user_id, nome))
     conn.commit()
 
     # Recupera o ID da ficha recém-criada
-    ficha_id = cursor.lastrowid
+    ficha_id = cursor.fetchone()[0]
 
     # Se o jogador não tiver uma ficha ativa, define a nova ficha como ativa
     cursor.execute(
@@ -1607,6 +1608,7 @@ async def importar_ficha(interaction: discord.Interaction,
             carga_max, carga_atual, inventario, vinculos, movimentos, 
             sorte, debilidades, notas)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    RETURNING id
     ''', (user_id, ficha_dict['nome'], ficha_dict['aparencia'],
           ficha_dict['classe'], ficha_dict['xp'], ficha_dict['nivel'],
           ficha_dict['alinhamento'], ficha_dict['alinhamento_detalhe'],
@@ -1620,7 +1622,7 @@ async def importar_ficha(interaction: discord.Interaction,
           ficha_dict['sorte'], ficha_dict['debilidades'], ficha_dict['notas']))
     conn.commit()
 
-    ficha_id = cursor.lastrowid
+    ficha_id = cursor.fetchone()[0]
     cursor.execute(
         '''
     SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
