@@ -285,7 +285,7 @@ async def criar_ficha(interaction: discord.Interaction, nome: str):
     cursor.execute(
         '''
     INSERT INTO fichas (user_id, nome)
-    VALUES (?, ?)
+    VALUES (%s, %s)
     ''', (user_id, nome))
     conn.commit()
 
@@ -295,7 +295,7 @@ async def criar_ficha(interaction: discord.Interaction, nome: str):
     # Se o jogador não tiver uma ficha ativa, define a nova ficha como ativa
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ativo = cursor.fetchone()
 
@@ -303,7 +303,7 @@ async def criar_ficha(interaction: discord.Interaction, nome: str):
         cursor.execute(
             '''
         INSERT INTO fichas_ativas (user_id, ficha_ativa_id)
-        VALUES (?, ?)
+        VALUES (%s, %s)
         ''', (user_id, ficha_id))
         conn.commit()
         await interaction.response.send_message(
@@ -322,7 +322,7 @@ async def mudar_ficha(interaction: discord.Interaction, ficha_id: int):
     # Verifica se a ficha existe
     cursor.execute(
         '''
-    SELECT * FROM fichas WHERE id = ? AND user_id = ?
+    SELECT * FROM fichas WHERE id = %s AND user_id = %s
     ''', (ficha_id, user_id))
     ficha = cursor.fetchone()
 
@@ -330,7 +330,7 @@ async def mudar_ficha(interaction: discord.Interaction, ficha_id: int):
         # Atualiza a ficha ativa
         cursor.execute(
             '''
-        UPDATE fichas_ativas SET ficha_ativa_id = ? WHERE user_id = ?
+        UPDATE fichas_ativas SET ficha_ativa_id = %s WHERE user_id = %s
         ''', (ficha_id, user_id))
         conn.commit()
         await interaction.response.send_message(
@@ -356,7 +356,7 @@ async def listar_fichas(interaction: discord.Interaction):
            END AS ativa
     FROM fichas f
     LEFT JOIN fichas_ativas fa ON f.user_id = fa.user_id
-    WHERE f.user_id = ?
+    WHERE f.user_id = %s
     ''', (user_id, ))
     fichas = cursor.fetchall()
 
@@ -417,7 +417,7 @@ async def definir(interaction: discord.Interaction, parametro: str,
     # Recupera a ficha ativa do usuário
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -428,8 +428,8 @@ async def definir(interaction: discord.Interaction, parametro: str,
         cursor.execute(
             f'''
         UPDATE fichas
-        SET {parametro} = ?
-        WHERE id = ?
+        SET {parametro} = %s
+        WHERE id = %s
         ''', (valor, ficha_id))
         conn.commit()
 
@@ -482,7 +482,7 @@ async def mostrar(interaction: discord.Interaction, parametro: str):
     SELECT f.{parametro}
     FROM fichas f
     JOIN fichas_ativas fa ON f.id = fa.ficha_ativa_id
-    WHERE fa.user_id = ?
+    WHERE fa.user_id = %s
     ''', (user_id, ))
     ficha = cursor.fetchone()
 
@@ -516,14 +516,14 @@ async def add_item(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT inventario FROM fichas WHERE id = ?",
+        cursor.execute("SELECT inventario FROM fichas WHERE id = %s",
                        (ficha_id, ))
         inventario = cursor.fetchone()
 
@@ -563,8 +563,8 @@ async def add_item(interaction: discord.Interaction,
         cursor.execute(
             f'''
         UPDATE fichas
-        SET inventario = ?
-        WHERE id = ?
+        SET inventario = %s
+        WHERE id = %s
         ''', (inventario_json, ficha_id))
         conn.commit()
 
@@ -576,16 +576,16 @@ async def add_item(interaction: discord.Interaction,
         cursor.execute(
             f'''
         UPDATE fichas
-        SET carga_atual = ?
-        WHERE id = ?
+        SET carga_atual = %s
+        WHERE id = %s
         ''', (novacarga, ficha_id))
         conn.commit()
 
-        cursor.execute("SELECT carga_atual FROM fichas WHERE id = ?",
+        cursor.execute("SELECT carga_atual FROM fichas WHERE id = %s",
                        (ficha_id, ))
         cargaatual = cursor.fetchone()[0]
 
-        cursor.execute("SELECT carga_max FROM fichas WHERE id = ?",
+        cursor.execute("SELECT carga_max FROM fichas WHERE id = %s",
                        (ficha_id, ))
         cargamax = cursor.fetchone()[0]
         if cargamax == None: cargamax = 0
@@ -609,7 +609,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -621,7 +621,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
         )
         return
 
-    cursor.execute("SELECT inventario FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT inventario FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -652,8 +652,8 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
     cursor.execute(
         '''
         UPDATE fichas
-        SET inventario = ?
-        WHERE id = ?
+        SET inventario = %s
+        WHERE id = %s
     ''', (inventario_json, ficha_id))
 
     # Commit para garantir que as mudanças sejam salvas no banco de dados
@@ -665,17 +665,17 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
     cursor.execute(
         f'''
     UPDATE fichas
-    SET carga_atual = ?
-    WHERE id = ?
+    SET carga_atual = %s
+    WHERE id = %s
     ''', (novacarga, ficha_id))
     conn.commit()
-    cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
     nome = cursor.fetchone()[0]
     
-    cursor.execute("SELECT carga_atual FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT carga_atual FROM fichas WHERE id = %s", (ficha_id, ))
     cargaatual = cursor.fetchone()[0]
 
-    cursor.execute("SELECT carga_max FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT carga_max FROM fichas WHERE id = %s", (ficha_id, ))
     cargamax = cursor.fetchone()[0]
     if cargamax == None: cargamax = 0
 
@@ -694,7 +694,7 @@ async def usar_item(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -706,7 +706,7 @@ async def usar_item(interaction: discord.Interaction,
         )
         return
 
-    cursor.execute("SELECT inventario FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT inventario FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -747,13 +747,13 @@ async def usar_item(interaction: discord.Interaction,
     cursor.execute(
         '''
         UPDATE fichas
-        SET inventario = ?
-        WHERE id = ?
+        SET inventario = %s
+        WHERE id = %s
     ''', (inventario_json, ficha_id))
 
     # Commit para garantir que as mudanças sejam salvas no banco de dados
     conn.commit()
-    cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
     nome = cursor.fetchone()[0]
     await interaction.response.send_message(
         f"{nome} usou {quantidade} {nome_item}")
@@ -763,15 +763,15 @@ async def usar_item(interaction: discord.Interaction,
     cursor.execute(
         f'''
     UPDATE fichas
-    SET carga_atual = ?
-    WHERE id = ?
+    SET carga_atual = %s
+    WHERE id = %s
     ''', (novacarga, ficha_id))
     conn.commit()
 
-    cursor.execute("SELECT carga_atual FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT carga_atual FROM fichas WHERE id = %s", (ficha_id, ))
     cargaatual = cursor.fetchone()[0]
 
-    cursor.execute("SELECT carga_max FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT carga_max FROM fichas WHERE id = %s", (ficha_id, ))
     cargamax = cursor.fetchone()[0]
     if cargamax == None: cargamax = 0
 
@@ -790,7 +790,7 @@ async def vender_item(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -802,7 +802,7 @@ async def vender_item(interaction: discord.Interaction,
         )
         return
 
-    cursor.execute("SELECT inventario FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT inventario FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -861,13 +861,13 @@ async def vender_item(interaction: discord.Interaction,
     cursor.execute(
         '''
         UPDATE fichas
-        SET inventario = ?
-        WHERE id = ?
+        SET inventario = %s
+        WHERE id = %s
     ''', (inventario_json, ficha_id))
 
     # Commit para garantir que as mudanças sejam salvas no banco de dados
     conn.commit()
-    cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
     nome = cursor.fetchone()[0]
     await interaction.response.send_message(
         f"{nome} vendeu {quantidade} {nome_item}, ganhando {valor} moedas")
@@ -877,15 +877,15 @@ async def vender_item(interaction: discord.Interaction,
     cursor.execute(
         f'''
     UPDATE fichas
-    SET carga_atual = ?
-    WHERE id = ?
+    SET carga_atual = %s
+    WHERE id = %s
     ''', (novacarga, ficha_id))
     conn.commit()
 
-    cursor.execute("SELECT carga_atual FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT carga_atual FROM fichas WHERE id = %s", (ficha_id, ))
     cargaatual = cursor.fetchone()[0]
 
-    cursor.execute("SELECT carga_max FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT carga_max FROM fichas WHERE id = %s", (ficha_id, ))
     cargamax = cursor.fetchone()[0]
     if cargamax == None: cargamax = 0
 
@@ -902,7 +902,7 @@ async def mostrar_item(interaction: discord.Interaction, nome_item: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -914,7 +914,7 @@ async def mostrar_item(interaction: discord.Interaction, nome_item: str):
         )
         return
 
-    cursor.execute("SELECT inventario FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT inventario FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -957,14 +957,14 @@ async def add_vinculo(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT vinculos FROM fichas WHERE id = ?",
+        cursor.execute("SELECT vinculos FROM fichas WHERE id = %s",
                        (ficha_id, ))
         vinculos = cursor.fetchone()
 
@@ -988,8 +988,8 @@ async def add_vinculo(interaction: discord.Interaction,
         cursor.execute(
             f'''
         UPDATE fichas
-        SET vinculos = ?
-        WHERE id = ?
+        SET vinculos = %s
+        WHERE id = %s
         ''', (vinculos_json, ficha_id))
         conn.commit()
 
@@ -1010,7 +1010,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -1022,7 +1022,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
         )
         return
 
-    cursor.execute("SELECT vinculos FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT vinculos FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -1054,8 +1054,8 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
     cursor.execute(
         '''
         UPDATE fichas
-        SET vinculos = ?
-        WHERE id = ?
+        SET vinculos = %s
+        WHERE id = %s
     ''', (vinculos_json, ficha_id))
 
     # Commit para garantir que as mudanças sejam salvas no banco de dados
@@ -1073,7 +1073,7 @@ async def mostrar_vinculo(interaction: discord.Interaction, nome_vinculo: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -1085,7 +1085,7 @@ async def mostrar_vinculo(interaction: discord.Interaction, nome_vinculo: str):
         )
         return
 
-    cursor.execute("SELECT vinculos FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT vinculos FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -1141,14 +1141,14 @@ async def add_mov_roll(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT movimentos FROM fichas WHERE id = ?",
+        cursor.execute("SELECT movimentos FROM fichas WHERE id = %s",
                        (ficha_id, ))
         movimentos = cursor.fetchone()
 
@@ -1192,8 +1192,8 @@ async def add_mov_roll(interaction: discord.Interaction,
         cursor.execute(
             f'''
         UPDATE fichas
-        SET movimentos = ?
-        WHERE id = ?
+        SET movimentos = %s
+        WHERE id = %s
         ''', (movimentos_json, ficha_id))
         conn.commit()
 
@@ -1221,14 +1221,14 @@ async def add_mov_tex(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT movimentos FROM fichas WHERE id = ?",
+        cursor.execute("SELECT movimentos FROM fichas WHERE id = %s",
                        (ficha_id, ))
         movimentos = cursor.fetchone()
 
@@ -1263,8 +1263,8 @@ async def add_mov_tex(interaction: discord.Interaction,
         cursor.execute(
             f'''
         UPDATE fichas
-        SET movimentos = ?
-        WHERE id = ?
+        SET movimentos = %s
+        WHERE id = %s
         ''', (movimentos_json, ficha_id))
         conn.commit()
 
@@ -1285,7 +1285,7 @@ async def mostrar_mov(interaction: discord.Interaction, nome_movimento: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -1297,7 +1297,7 @@ async def mostrar_mov(interaction: discord.Interaction, nome_movimento: str):
         )
         return
 
-    cursor.execute("SELECT movimentos FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT movimentos FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -1334,7 +1334,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -1346,7 +1346,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
         )
         return
 
-    cursor.execute("SELECT movimentos FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT movimentos FROM fichas WHERE id = %s", (ficha_id, ))
     resultado = cursor.fetchone()
 
     # Se a ficha não tiver movimentos, não há nada para remover
@@ -1377,8 +1377,8 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
     cursor.execute(
         '''
         UPDATE fichas
-        SET movimentos = ?
-        WHERE id = ?
+        SET movimentos = %s
+        WHERE id = %s
     ''', (movimentos_json, ficha_id))
 
     # Commit para garantir que as mudanças sejam salvas no banco de dados
@@ -1400,7 +1400,7 @@ async def mostrar_ficha(interaction: discord.Interaction):
     cursor.execute(
         '''SELECT * FROM fichas f
                     JOIN fichas_ativas fa ON f.id = fa.ficha_ativa_id
-                    WHERE fa.user_id = ?''', (user_id, ))
+                    WHERE fa.user_id = %s''', (user_id, ))
     ficha = cursor.fetchone()
 
     if ficha is None:
@@ -1450,7 +1450,7 @@ async def exportar_ficha(interaction: discord.Interaction,
         user_id = interaction.user.id
         cursor.execute(
             '''
-        SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+        SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
         ''', (user_id, ))
         ficha_ativa = cursor.fetchone()
 
@@ -1464,7 +1464,7 @@ async def exportar_ficha(interaction: discord.Interaction,
 
     cursor.execute(
         '''
-            SELECT * FROM fichas WHERE id = ?
+            SELECT * FROM fichas WHERE id = %s
         ''', (ficha_id, ))
 
     ficha = cursor.fetchone()
@@ -1534,7 +1534,7 @@ async def exportar_ficha(interaction: discord.Interaction,
 async def deletar_ficha(interaction: discord.Interaction, ficha_id: int):
     try:
         # Verificar se a ficha com o ID fornecido existe
-        cursor.execute('SELECT * FROM fichas WHERE id = ?', (ficha_id, ))
+        cursor.execute('SELECT * FROM fichas WHERE id = %s', (ficha_id, ))
         ficha = cursor.fetchone()
 
         if ficha is None:
@@ -1543,7 +1543,7 @@ async def deletar_ficha(interaction: discord.Interaction, ficha_id: int):
             return
 
         # Deletar a ficha
-        cursor.execute('DELETE FROM fichas WHERE id = ?', (ficha_id, ))
+        cursor.execute('DELETE FROM fichas WHERE id = %s', (ficha_id, ))
         conn.commit()
 
         # Mensagem de confirmação
@@ -1605,7 +1605,7 @@ async def importar_ficha(interaction: discord.Interaction,
             hp_max, armadura, str, des, con, int, sab, car, 
             carga_max, carga_atual, inventario, vinculos, movimentos, 
             sorte, debilidades, notas)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ''', (user_id, ficha_dict['nome'], ficha_dict['aparencia'],
           ficha_dict['classe'], ficha_dict['xp'], ficha_dict['nivel'],
           ficha_dict['alinhamento'], ficha_dict['alinhamento_detalhe'],
@@ -1622,7 +1622,7 @@ async def importar_ficha(interaction: discord.Interaction,
     ficha_id = cursor.lastrowid
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ativo = cursor.fetchone()
 
@@ -1630,7 +1630,7 @@ async def importar_ficha(interaction: discord.Interaction,
         cursor.execute(
             '''
         INSERT INTO fichas_ativas (user_id, ficha_ativa_id)
-        VALUES (?, ?)
+        VALUES (%s, %s)
         ''', (user_id, ficha_id))
         conn.commit()
         await interaction.response.send_message(
@@ -1651,7 +1651,7 @@ async def importar_ficha(interaction: discord.Interaction,
 async def roll(interaction: discord.Interaction, expressao: str = "2d6"):
     try:
         # Regex para capturar a expressão do dado
-        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)?', expressao)
+        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)%s', expressao)
         if not match:
             await interaction.response.send_message(
                 "Expressão inválida! Use o formato XdY+Z.")
@@ -1709,7 +1709,7 @@ async def atributo(interaction: discord.Interaction,
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -1726,14 +1726,14 @@ async def atributo(interaction: discord.Interaction,
     mod = modificador  # Modificador aritmético (ex: +2, -1, *4)
 
     if atributo in ["str", "des", "con", "int", "sab", "car"]:
-        cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?",
+        cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = %s",
                        (ficha_id, ))
         atributomod = cursor.fetchone()[0]
         atributomod = obter_modificador(atributomod)
     else:
         atributomod = 0
 
-    cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
+    cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
                    (ficha_id, ))
     debilidades = cursor.fetchone()[0]
     if debilidades == None:
@@ -1792,14 +1792,14 @@ async def debilidade(interaction: discord.Interaction, debilidade: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT debilidades FROM fichas WHERE id = ?",
+        cursor.execute("SELECT debilidades FROM fichas WHERE id = %s",
                        (ficha_id, ))
         debilidades = cursor.fetchone()[0]
 
@@ -1818,8 +1818,8 @@ async def debilidade(interaction: discord.Interaction, debilidade: str):
         cursor.execute(
             f'''
         UPDATE fichas
-        SET debilidades = ?
-        WHERE id = ?
+        SET debilidades = %s
+        WHERE id = %s
         ''', (debilidades, ficha_id))
         conn.commit()
 
@@ -1838,16 +1838,16 @@ async def sorte(interaction: discord.Interaction):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+        cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
         nome = cursor.fetchone()[0]
 
-        cursor.execute("SELECT sorte FROM fichas WHERE id = ?", (ficha_id, ))
+        cursor.execute("SELECT sorte FROM fichas WHERE id = %s", (ficha_id, ))
         sorte = cursor.fetchone()[0]
 
         if sorte == None:
@@ -1865,8 +1865,8 @@ async def sorte(interaction: discord.Interaction):
         cursor.execute(
             f'''
         UPDATE fichas
-        SET sorte = ?
-        WHERE id = ?
+        SET sorte = %s
+        WHERE id = %s
         ''', (sorte, ficha_id))
         conn.commit()
 
@@ -1887,7 +1887,7 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
         SELECT f.dado_dano
         FROM fichas f
         JOIN fichas_ativas fa ON f.id = fa.ficha_ativa_id
-        WHERE fa.user_id = ?
+        WHERE fa.user_id = %s
         ''', (user_id, ))
         ficha = cursor.fetchone()
 
@@ -1899,7 +1899,7 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
             )
         if valor == None: valor = ""
         # Regex para capturar a expressão do dado
-        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)?', valor)
+        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)%s', valor)
         if not match:
             await interaction.response.send_message(
                 "Expressão inválida! Use o formato XdY+Z.")
@@ -1943,14 +1943,14 @@ async def mov(interaction: discord.Interaction, movimento: str):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT movimentos FROM fichas WHERE id = ?",
+        cursor.execute("SELECT movimentos FROM fichas WHERE id = %s",
                        (ficha_id, ))
         movimentos = cursor.fetchone()
 
@@ -1971,7 +1971,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
         if "atributo" in movimento_especifico:
             atributo = movimento_especifico['atributo']
             if atributo in ["str", "des", "con", "int", "sab", "car"]:
-                cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?",
+                cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = %s",
                                (ficha_id, ))
                 atributo = cursor.fetchone()[0]
                 atributo = obter_modificador(atributo)
@@ -1979,7 +1979,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
                 atributo = 0
             mod = movimento_especifico['mod']
 
-            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
+            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
                            (ficha_id, ))
             debilidades = cursor.fetchone()[0]
             if debilidades == None:
@@ -2013,7 +2013,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
 
             # Construir a mensagem de resultado
 
-            cursor.execute("SELECT nome FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
@@ -2042,7 +2042,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
             if movimento_especifico['detalhes'] != "":
                 resposta += f"\n\n{movimento_especifico['detalhes']}"
         else:
-            cursor.execute("SELECT nome FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
             resposta = f"**{nome}** usou o movimento **{movimento_especifico['nome']}**:\n\n{movimento_especifico['gatilho']}\n\n{movimento_especifico['descricao']}"
@@ -2050,7 +2050,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
         await interaction.response.send_message(resposta)
 
         if resultado_final <= 6:
-            cursor.execute("SELECT xp FROM fichas WHERE id = ?", (ficha_id, ))
+            cursor.execute("SELECT xp FROM fichas WHERE id = %s", (ficha_id, ))
             xp = cursor.fetchone()
 
             if xp == (None, ):
@@ -2063,11 +2063,11 @@ async def mov(interaction: discord.Interaction, movimento: str):
 
             xp = int(xp) + 1
 
-            cursor.execute("SELECT nivel FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nivel FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nivel = cursor.fetchone()
 
-            cursor.execute("SELECT nome FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
@@ -2081,8 +2081,8 @@ async def mov(interaction: discord.Interaction, movimento: str):
             cursor.execute(
                 f'''
             UPDATE fichas
-            SET xp = ?
-            WHERE id = ?
+            SET xp = %s
+            WHERE id = %s
             ''', (xp, ficha_id))
             conn.commit()
 
@@ -2100,7 +2100,7 @@ async def calamidade(interaction: discord.Interaction):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
@@ -2144,7 +2144,7 @@ async def calamidade(interaction: discord.Interaction):
     if resultado_final == 12:
         resultado = "Uma força absoluta trará o Fim"
 
-    cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
     nome = cursor.fetchone()[0]
 
     # Construir a mensagem de resultado
@@ -2152,7 +2152,7 @@ async def calamidade(interaction: discord.Interaction):
 
     resposta = f"**Uma Calamidade cai sobre {nome}!**\nRolagens: {rolagens_str} = {soma_rolagens}\nResultado Final: **{resultado_final}** - **{resultado}**"
 
-    cursor.execute("SELECT sorte FROM fichas WHERE id = ?", (ficha_id, ))
+    cursor.execute("SELECT sorte FROM fichas WHERE id = %s", (ficha_id, ))
     sorte = cursor.fetchone()[0]
 
     if sorte == None:
@@ -2163,8 +2163,8 @@ async def calamidade(interaction: discord.Interaction):
     cursor.execute(
         f'''
     UPDATE fichas
-    SET sorte = ?
-    WHERE id = ?
+    SET sorte = %s
+    WHERE id = %s
     ''', (sorte, ficha_id))
     conn.commit()
 
@@ -2178,7 +2178,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
     try:
@@ -2194,7 +2194,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
         if "atributo" in movimento:
             atributo = movimento['atributo']
             if atributo in ["str", "des", "con", "int", "sab", "car"]:
-                cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?",
+                cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = %s",
                                (ficha_id, ))
                 atributo = cursor.fetchone()[0]
                 atributo = obter_modificador(atributo)
@@ -2202,7 +2202,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
                 atributo = 0
             mod = movimento['mod']
             mod = mod+modificador
-            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?",
+            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
                            (ficha_id, ))
             debilidades = cursor.fetchone()[0]
             if debilidades == None:
@@ -2236,7 +2236,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
 
             # Construir a mensagem de resultado
 
-            cursor.execute("SELECT nome FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
@@ -2264,7 +2264,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             if movimento['detalhes'] != "":
                 resposta += f"\n\n{movimento['detalhes']}"
         else:
-            cursor.execute("SELECT nome FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
             resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n\n{movimento['gatilho']}\n\n{movimento['descricao']}"
@@ -2272,7 +2272,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
         await interaction.response.send_message(resposta)
 
         if resultado_final <= 6:
-            cursor.execute("SELECT xp FROM fichas WHERE id = ?", (ficha_id, ))
+            cursor.execute("SELECT xp FROM fichas WHERE id = %s", (ficha_id, ))
             xp = cursor.fetchone()
 
             if xp == (None, ):
@@ -2285,11 +2285,11 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
 
             xp = int(xp) + 1
 
-            cursor.execute("SELECT nivel FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nivel FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nivel = cursor.fetchone()
 
-            cursor.execute("SELECT nome FROM fichas WHERE id = ?",
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
@@ -2303,8 +2303,8 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             cursor.execute(
                 f'''
             UPDATE fichas
-            SET xp = ?
-            WHERE id = ?
+            SET xp = %s
+            WHERE id = %s
             ''', (xp, ficha_id))
             conn.commit()
     else:
@@ -2321,14 +2321,14 @@ async def xp(interaction: discord.Interaction, quantidade: int = 1):
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
-    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
 
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
-        cursor.execute("SELECT xp FROM fichas WHERE id = ?", (ficha_id, ))
+        cursor.execute("SELECT xp FROM fichas WHERE id = %s", (ficha_id, ))
         xp = cursor.fetchone()
 
         if xp == (None, ):
@@ -2339,13 +2339,13 @@ async def xp(interaction: discord.Interaction, quantidade: int = 1):
 
         xp = int(xp) + quantidade
 
-        cursor.execute("SELECT nivel FROM fichas WHERE id = ?", (ficha_id, ))
+        cursor.execute("SELECT nivel FROM fichas WHERE id = %s", (ficha_id, ))
         nivel = cursor.fetchone()
 
         if nivel == None or nivel[0] == None:
             nivel = 0
 
-        cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id, ))
+        cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
         nome = cursor.fetchone()[0]
 
         if xp >= nivel + 7:
@@ -2359,8 +2359,8 @@ async def xp(interaction: discord.Interaction, quantidade: int = 1):
         cursor.execute(
             f'''
         UPDATE fichas
-        SET xp = ?
-        WHERE id = ?
+        SET xp = %s
+        WHERE id = %s
         ''', (xp, ficha_id))
         conn.commit()
 
