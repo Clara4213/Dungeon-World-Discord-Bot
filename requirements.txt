@@ -1,8 +1,2 @@
 discord.py
-os
-sqlite3
-re
-random
-json
-Flask
 Thread
