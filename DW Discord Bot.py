@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import sqlite3
 import re
 import random
-
+import json
 
 
 
@@ -15,6 +15,12 @@ import random
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+with open('movimentos_basicos.json', 'r', encoding='utf-8') as file:
+    # Carrega o conteúdo do arquivo em um dicionário
+    movimentos_basicos = json.load(file)
+
+
 
 
 def obter_modificador(atributo):
@@ -128,7 +134,69 @@ def formatar_dicionarios(lista_dicionarios):
     
     return "\n".join(resultado)
 
-# Set the confirmation message when the bot is ready
+def formatar_json(json):
+    novojson = {
+    "nome" : "",
+    "aparencia" : "",
+    "classe" : "",
+    "xp" : "",
+    "nivel"  : "",
+    "alinhamento"  : "",
+    "alinhamento_detalhe"  : "",
+    "raca"  : "",
+    "raca_texto"  : "",
+    "dado_dano"  : "",
+    "hp_atual"  : "",
+    "hp_max"  : "",
+    "armadura"  : "",
+    "for"  : "",
+    "des"  : "",
+    "con"  : "",
+    "int"  : "",
+    "sab"  : "",
+    "car"  : "",
+    "debilidades"  : "",
+    "carga_max"  : "",
+    "carga_atual"  : "",
+    "inventario"  : "",
+    "vinculos"  : "",
+    "movimentos"  : "",
+    "sorte"  : 0,
+    "notas" : ""
+    }
+
+    novojson["nome"] = json.get('characterName')
+    novojson["aparencia"] = json.get('look').replace("\n", " ")
+    novojson["classe"] = json.get('characterClass')
+    novojson["xp"] = int(json.get('xp'))
+    novojson["nivel"] = int(json.get('level'))
+    novojson["alinhamento"] = json.get('alignment').split(" - ")[0]
+    novojson["alinhamento_detalhe"] = json.get('alignment').split(" - ")[1]
+    novojson["raca"] = json.get('race').split(" - ")[0]
+    novojson["raca_texto"] = json.get('race').split(" - ")[1]
+    novojson["dado_dano"] = json.get('otherDice')
+    novojson["hp_atual"] = int(json.get('hitPoints'))
+    novojson["hp_max"] = int(json.get('maxHitPoints'))
+    novojson["armadura"] = int(json.get('armor'))
+    novojson["for"] = int(json.get('strength'))
+    novojson["des"] = int(json.get('dexterity'))
+    novojson["con"] = int(json.get('constitution'))
+    novojson["int"] = int(json.get('intelligence'))
+    novojson["sab"] = int(json.get('wisdom'))
+    novojson["car"] = int(json.get('charisma'))
+    novojson["debilidades"] = ""
+    novojson["carga_max"] = int(json.get('load'))
+    novojson["carga_atual"] = int(json.get('maxLoad'))
+    novojson["inventario"] = "[]"
+    novojson["vinculos"] = "[]"
+    novojson["movimentos"] = "[]"
+    novojson["sorte"] = ""
+    novojson["notas"] = ""
+
+    return novojson
+
+
+
 
 @bot.event
 async def on_ready():
@@ -180,11 +248,13 @@ CREATE TABLE IF NOT EXISTS fichas (
     int INTEGER,           
     sab INTEGER,
     car INTEGER,
+    debilidades TEXT,
     carga_max INTEGER,
     carga_atual INTEGER,
     inventario TEXT,
     vinculos TEXT,
     movimentos TEXT,
+    sorte INTEGER,
     notas TEXT
 )
 ''')
@@ -316,6 +386,7 @@ async def listar_fichas(interaction: discord.Interaction):
         app_commands.Choice(name="Carisma",                 value="car"),
         app_commands.Choice(name="Carga Máxima",           value="carga_max"),
         app_commands.Choice(name="Carga Atual",         value="carga_atual"),
+        app_commands.Choice(name="Sorte",         value="sorte"),
         app_commands.Choice(name="Notas",               value="notas")
     ]
 )
@@ -334,6 +405,7 @@ async def definir(interaction: discord.Interaction, parametro:str, valor:str):
     "car",
     "carga_max",
     "carga_atual",
+    "sorte"
     ]:
         valor = int(valor)
     
@@ -387,6 +459,8 @@ async def definir(interaction: discord.Interaction, parametro:str, valor:str):
         app_commands.Choice(name="Carisma",                 value="car"),
         app_commands.Choice(name="Carga Máxima",           value="carga_max"),
         app_commands.Choice(name="Carga Atual",         value="carga_atual"),
+        app_commands.Choice(name="Sorte",         value="sorte"),
+        app_commands.Choice(name="Debilidades",         value="debilidades"),
         app_commands.Choice(name="Notas",               value="notas")
     ]
 )
@@ -495,7 +569,7 @@ async def add_item(interaction: discord.Interaction, nome:str, descricao:str ,qu
         if cargamax == None: cargamax = 0
 
         if cargaatual > cargamax:
-            await interaction.response.send_message(f'Você está carregando itens demais!')
+            await interaction.channel.send(f'{nome} está carregando itens demais!')
         
 
 
@@ -574,7 +648,7 @@ async def rem_item(interaction: discord.Interaction, nome_item:str):
     if cargamax == None: cargamax = 0
 
     if cargaatual > cargamax:
-        await interaction.response.send_message(f'Você está carregando itens demais!')
+        await interaction.channel.send(f'{nome} está carregando itens demais!')
 
 @bot.tree.command(name="usar_item", description="Usa um item da sua ficha ativa")
 @app_commands.describe(
@@ -659,7 +733,7 @@ async def usar_item(interaction: discord.Interaction, nome_item:str, quantidade:
     if cargamax == None: cargamax = 0
 
     if cargaatual > cargamax:
-        await interaction.response.send_message(f'Você está carregando itens demais!')
+        await interaction.channel.send(f'{nome} está carregando itens demais!')
 
 @bot.tree.command(name="vender_item", description="Vende item da sua ficha ativa")
 @app_commands.describe(
@@ -759,7 +833,7 @@ async def vender_item(interaction: discord.Interaction, nome_item:str, quantidad
     if cargamax == None: cargamax = 0
 
     if cargaatual > cargamax:
-        await interaction.response.send_message(f'Você está carregando itens demais!')
+        await interaction.channel.send(f'{nome} está carregando itens demais!')
 
 @bot.tree.command(name="mostrar_item", description="Mostra um vínculo da sua ficha ativa")
 @app_commands.describe(
@@ -1291,7 +1365,9 @@ async def exportar_ficha(interaction: discord.Interaction, ficha_id: int=None):
             'inventario':          ficha[23],
             'vinculos':            ficha[24],
             'movimentos':          ficha[25],
-            'notas':               ficha[26]
+            'sorte':               ficha[26],
+            'debilidades':         ficha[27],
+            'notas':               ficha[28]
         }
 
         # Converte o dicionário para JSON
@@ -1339,80 +1415,81 @@ async def deletar_ficha(interaction: discord.Interaction, ficha_id: int):
 
 @bot.tree.command(name="importar_ficha", description="Importa uma ficha a partir de um arquivo json")
 async def importar_ficha(interaction: discord.Interaction, json_ficha: discord.Attachment):
-    try:
         # Abrir o arquivo JSON enviado pelo usuário
-        ficha_json = json.loads(await json_ficha.read())
+    ficha_json = json.loads(await json_ficha.read())
 
-        # A partir do JSON, vamos preencher o dicionário ficha_dict com os dados
-        ficha_dict = {
-            'nome': ficha_json.get('nome'),
-            'aparencia': ficha_json.get('aparencia'),
-            'classe': ficha_json.get('classe'),
-            'xp': ficha_json.get('xp'),
-            'nivel': ficha_json.get('nivel'),
-            'alinhamento': ficha_json.get('alinhamento'),
-            'alinhamento_detalhe': ficha_json.get('alinhamento_detalhe'),
-            'raca': ficha_json.get('raca'),
-            'raca_texto': ficha_json.get('raca_texto'),
-            'dado_dano': ficha_json.get('dado_dano'),
-            'hp_atual': ficha_json.get('hp_atual'),
-            'hp_max': ficha_json.get('hp_max'),
-            'armadura': ficha_json.get('armadura'),
-            'for': ficha_json.get('for'),
-            'des': ficha_json.get('des'),
-            'con': ficha_json.get('con'),
-            'int': ficha_json.get('int'),
-            'sab': ficha_json.get('sab'),
-            'car': ficha_json.get('car'),
-            'carga_max': ficha_json.get('carga_max'),
-            'carga_atual': ficha_json.get('carga_atual'),
-            'inventario': ficha_json.get('inventario', []),
-            'vinculos': ficha_json.get('vinculos', []),     
-            'movimentos': ficha_json.get('movimentos', []),
-            'notas': ficha_json.get('notas')
-        }
+    if "characterName" in ficha_json:
+        ficha_json = formatar_json(ficha_json)
 
-        # Vamos usar o user_id para saber qual ficha editar, você pode pegar isso a partir de interaction.user.id
-        user_id = interaction.user.id
+    # A partir do JSON, vamos preencher o dicionário ficha_dict com os dados
+    ficha_dict = {
+        'nome': ficha_json.get('nome'),
+        'aparencia': ficha_json.get('aparencia'),
+        'classe': ficha_json.get('classe'),
+        'xp': ficha_json.get('xp'),
+        'nivel': ficha_json.get('nivel'),
+        'alinhamento': ficha_json.get('alinhamento'),
+        'alinhamento_detalhe': ficha_json.get('alinhamento_detalhe'),
+        'raca': ficha_json.get('raca'),
+        'raca_texto': ficha_json.get('raca_texto'),
+        'dado_dano': ficha_json.get('dado_dano'),
+        'hp_atual': ficha_json.get('hp_atual'),
+        'hp_max': ficha_json.get('hp_max'),
+        'armadura': ficha_json.get('armadura'),
+        'for': ficha_json.get('for'),
+        'des': ficha_json.get('des'),
+        'con': ficha_json.get('con'),
+        'int': ficha_json.get('int'),
+        'sab': ficha_json.get('sab'),
+        'car': ficha_json.get('car'),
+        'carga_max': ficha_json.get('carga_max'),
+        'carga_atual': ficha_json.get('carga_atual'),
+        'inventario': ficha_json.get('inventario', []),
+        'vinculos': ficha_json.get('vinculos', []),     
+        'movimentos': ficha_json.get('movimentos', []),
+        'sorte': ficha_json.get('sorte'),
+        'debilidades': ficha_json.get('debilidades'),
+        'notas': ficha_json.get('notas')
+    }
+
+    # Vamos usar o user_id para saber qual ficha editar, você pode pegar isso a partir de interaction.user.id
+    user_id = interaction.user.id
+    cursor.execute('''
+    INSERT INTO fichas (user_id, nome, aparencia, classe, xp, nivel, alinhamento, 
+            alinhamento_detalhe, raca, raca_texto, dado_dano, hp_atual, 
+            hp_max, armadura, for, des, con, int, sab, car, 
+            carga_max, carga_atual, inventario, vinculos, movimentos, 
+            sorte, debilidades, notas)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (user_id, ficha_dict['nome'], ficha_dict['aparencia'], ficha_dict['classe'], ficha_dict['xp'], 
+        ficha_dict['nivel'], ficha_dict['alinhamento'], ficha_dict['alinhamento_detalhe'], 
+        ficha_dict['raca'], ficha_dict['raca_texto'], ficha_dict['dado_dano'], 
+        ficha_dict['hp_atual'], ficha_dict['hp_max'], ficha_dict['armadura'], ficha_dict['for'], 
+        ficha_dict['des'], ficha_dict['con'], ficha_dict['int'], ficha_dict['sab'], 
+        ficha_dict['car'], ficha_dict['carga_max'], ficha_dict['carga_atual'], 
+        ficha_dict['inventario'], ficha_dict['vinculos'], 
+        ficha_dict['movimentos'], ficha_dict['sorte'], ficha_dict['debilidades'], ficha_dict['notas'] ))
+    conn.commit()
+
+    ficha_id = cursor.lastrowid
+    cursor.execute('''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    ''', (user_id,))
+    ativo = cursor.fetchone()
+
+    if ativo is None:
         cursor.execute('''
-        INSERT INTO fichas (user_id, nome, aparencia, classe, xp, nivel, alinhamento, 
-                alinhamento_detalhe, raca, raca_texto, dado_dano, hp_atual, 
-                hp_max, armadura, for, des, con, int, sab, car, 
-                carga_max, carga_atual, inventario, vinculos, movimentos, 
-                notas)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (user_id, ficha_dict['nome'], ficha_dict['aparencia'], ficha_dict['classe'], ficha_dict['xp'], 
-            ficha_dict['nivel'], ficha_dict['alinhamento'], ficha_dict['alinhamento_detalhe'], 
-            ficha_dict['raca'], ficha_dict['raca_texto'], ficha_dict['dado_dano'], 
-            ficha_dict['hp_atual'], ficha_dict['hp_max'], ficha_dict['armadura'], ficha_dict['for'], 
-            ficha_dict['des'], ficha_dict['con'], ficha_dict['int'], ficha_dict['sab'], 
-            ficha_dict['car'], ficha_dict['carga_max'], ficha_dict['carga_atual'], 
-            ficha_dict['inventario'], ficha_dict['vinculos'], 
-            ficha_dict['movimentos'], ficha_dict['notas'] ))
+        INSERT INTO fichas_ativas (user_id, ficha_ativa_id)
+        VALUES (?, ?)
+        ''', (user_id, ficha_id))
         conn.commit()
+        await interaction.response.send_message(f'Ficha "{ficha_dict['nome']}" importada com sucesso e marcada como ativa!')
+    else:
+        await interaction.response.send_message(f'Ficha "{ficha_dict['nome']}" importada com sucesso!')
 
-        ficha_id = cursor.lastrowid
-        cursor.execute('''
-        SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
-        ''', (user_id,))
-        ativo = cursor.fetchone()
-
-        if ativo is None:
-            cursor.execute('''
-            INSERT INTO fichas_ativas (user_id, ficha_ativa_id)
-            VALUES (?, ?)
-            ''', (user_id, ficha_id))
-            conn.commit()
-            await interaction.response.send_message(f'Ficha "{ficha_dict['nome']}" importada com sucesso e marcada como ativa!')
-        else:
-            await interaction.response.send_message(f'Ficha "{ficha_dict['nome']}" importada com sucesso!')
-
-        # Mensagem de confirmação
-        await interaction.response.send_message(f"Ficha importada com sucesso para {interaction.user.mention}!")
-    except Exception as e:
-        # Se ocorrer algum erro
-        await interaction.response.send_message(f"Ocorreu um erro ao tentar importar a ficha: {e}")
-
+    # Mensagem de confirmação
+    await interaction.response.send_message(f"Ficha importada com sucesso para {interaction.user.mention}!")
+   
 @bot.tree.command(name="roll", description="Simule uma rolagem de dados")
 @app_commands.describe(expressao="Expressão da rolagem de dados (ex: 2d6+2, 5d4-1, 1d20*4)")
 async def roll(interaction: discord.Interaction, expressao: str="2d6"):
@@ -1449,15 +1526,177 @@ async def roll(interaction: discord.Interaction, expressao: str="2d6"):
     except Exception as e:
         await interaction.response.send_message("Ocorreu um erro ao processar a rolagem. Verifique a expressão e tente novamente.")
 
+@bot.tree.command(name="atributo", description="Simule uma rolagem de dados usando um atributo só")
+@app_commands.describe(atributo="Qual atributo usar", modificador="Modificador na rolagem")
+@app_commands.choices(
+    atributo=[
+        app_commands.Choice(name="Força",              value="for"),
+        app_commands.Choice(name="Destreza",           value="des"),
+        app_commands.Choice(name="Constituição",       value="con"),
+        app_commands.Choice(name="Inteligência",       value="int"),
+        app_commands.Choice(name="Sabedoria",          value="sab"),
+        app_commands.Choice(name="Carisma",            value="car"),
+    ]
+)
+async def atributo(interaction: discord.Interaction, atributo: str,modificador: int=0):
+    
 
+    user_id = interaction.user.id
 
+    # Buscar a ficha do jogador pelo ID
+    cursor.execute('''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    ''', (user_id,))
+    ficha_ativa = cursor.fetchone()
 
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+    else:
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
+        return
+    
+    n_dados = 2 
+    tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
+    mod = modificador     # Modificador aritmético (ex: +2, -1, *4)
 
+    if atributo in ["for","des","con","int","sab","car"]:
+        cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?", (ficha_id,))
+        atributomod = cursor.fetchone()[0]
+        atributomod = obter_modificador(atributomod)
+    else:
+        atributomod = 0
 
+    cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?", (ficha_id,))
+    debilidades = cursor.fetchone()[0]
+    if debilidades == None or debilidades[0] == None:
+        debilidades = ""
+    debilidades = debilidades.lower()
+    if atributo == "for" and "fraco" in debilidades:
+        mod = mod - 1
+    elif atributo == "des" and "trêmulo" in debilidades:
+        mod = mod - 1
+    elif atributo == "con" and "doente" in debilidades:
+        mod = mod - 1
+    elif atributo == "int" and "atordoado" in debilidades:
+        mod = mod - 1
+    elif atributo == "sab" and "confuso" in debilidades:
+        mod = mod - 1
+    elif atributo == "car" and "marcado" in debilidades:
+        mod = mod - 1
+
+    modificador = mod
+
+    # Realizar as rolagens
+    rolagens = [random.randint(1, tipo_dado) for _ in range(n_dados)]
+    soma_rolagens = sum(rolagens)
+
+    # Aplicar o modificador, se existir
+    resultado_final = soma_rolagens
+    if modificador:
+        resultado_final = eval(f"{soma_rolagens}{modificador}")
+
+    # Construir a mensagem de resultado
+    rolagens_str = ' + '.join(map(str, rolagens))
+    if modificador:
+        resposta = f"**Rolagem: 2d6+{atributo.upper()} ({atributomod})**\nRolagens: {rolagens_str} + {atributomod} = {soma_rolagens}\nModificador: {modificador}\n**Resultado Final: {resultado_final}**"
+    else:
+        resposta = f"**Rolagem: 2d6+{atributo.upper()} ({atributomod})**\nRolagens: {rolagens_str} + {atributomod} = {resultado_final}"
+
+    await interaction.response.send_message(resposta)
+
+@bot.tree.command(name="debilidade", description="Adiciona ou remove uma debilidade da sua ficha ativa")
+@app_commands.describe(
+    debilidade="Nome da debilidade",
+)
+@app_commands.choices(
+    debilidade=[
+        app_commands.Choice(name="Fraco (FOR)",                value="fraco"),
+        app_commands.Choice(name="Trêmulo (DES)",           value="trêmulo"),
+        app_commands.Choice(name="Doente (CON)",              value="doente"),
+        app_commands.Choice(name="Atordoado (INT)",              value="atordoado"),
+        app_commands.Choice(name="Confuso (SAB)",               value="confuso"),
+        app_commands.Choice(name="Marcado (CAR)",          value="marcado"),
+    ]
+)
+async def debilidade(interaction: discord.Interaction, debilidade:str):
+    # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
+    user_id = interaction.user.id
+
+    # Buscar a ficha do jogador pelo ID
+    cursor.execute('''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    ''', (user_id,))
+    ficha_ativa = cursor.fetchone()
+
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+
+        cursor.execute("SELECT debilidades FROM fichas WHERE id = ?", (ficha_id,))
+        debilidades = cursor.fetchone()[0]
+
+        if debilidades == None or debilidades[0] == None:
+            debilidades = ""
+        
+        if debilidade not in debilidades:
+            debilidades = debilidades + " " +debilidade
+            await interaction.response.send_message(f'A debilidade {debilidade.capitalize()} foi adicionada.')
+        else:
+            debilidades = debilidades.replace(debilidade,"")
+            await interaction.response.send_message(f'A debilidade {debilidade.capitalize()} foi removida.')
+        
+        cursor.execute(f'''
+        UPDATE fichas
+        SET debilidades = ?
+        WHERE id = ?
+        ''', (debilidades, ficha_id))
+        conn.commit()
+
+        
+    else:
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
+
+@bot.tree.command(name="sorte", description="Usa um ponto de sorte da sua ficha ativa")
+async def sorte(interaction: discord.Interaction):
+    # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
+    user_id = interaction.user.id
+
+    # Buscar a ficha do jogador pelo ID
+    cursor.execute('''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    ''', (user_id,))
+    ficha_ativa = cursor.fetchone()
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+
+        cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+        nome = cursor.fetchone()[0]
+
+        cursor.execute("SELECT sorte FROM fichas WHERE id = ?", (ficha_id,))
+        sorte = cursor.fetchone()[0]
+
+        if sorte == None:
+            sorte = 0
+        
+        if sorte > 0:
+            sorte = sorte - 1
+            await interaction.response.send_message(f'{nome} usou um ponto de Sorte!\nSó lhe restam {sorte} pontos de Sorte agora.')
+        else:
+            await interaction.response.send_message(f'{nome} não tem mais Sorte pra gastar...')
+
+        cursor.execute(f'''
+        UPDATE fichas
+        SET sorte = ?
+        WHERE id = ?
+        ''', (sorte, ficha_id))
+        conn.commit()
+
+        
+    else:
+        await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
 @bot.tree.command(name="db", description="Rola o seu dano básico")
 @app_commands.describe(modificador_extra="Algum modificador adicional")
-async def roll(interaction: discord.Interaction, modificador_extra: int=0):
+async def db(interaction: discord.Interaction, modificador_extra: int=0):
     try:
         user_id = interaction.user.id
 
@@ -1505,10 +1744,6 @@ async def roll(interaction: discord.Interaction, modificador_extra: int=0):
     except Exception as e:
         await interaction.response.send_message("Ocorreu um erro ao processar a rolagem. Verifique a expressão e tente novamente.")
 
-
-
-
-
 @bot.tree.command(name="mov", description="Use um movimento da sua ficha ativa")
 @app_commands.describe(movimento="O nome exato do movimento")
 async def mov(interaction: discord.Interaction, movimento: str):
@@ -1549,6 +1784,23 @@ async def mov(interaction: discord.Interaction, movimento: str):
                 atributo = 0
             mod = movimento_especifico['mod']
 
+            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?", (ficha_id,))
+            debilidades = cursor.fetchone()[0]
+            if debilidades == None or debilidades[0] == None:
+                debilidades = ""
+            debilidades = debilidades.lower()
+            if movimento['atributo'] == "for" and "fraco" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "con" and "doente" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "int" and "atordoado" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "sab" and "confuso" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "car" and "marcado" in debilidades:
+                mod = mod - 1
 
 
             n_dados = 2 # Número de dados, default 1
@@ -1615,6 +1867,18 @@ async def mov(interaction: discord.Interaction, movimento: str):
             
             xp = int(xp) + 1
 
+            cursor.execute("SELECT nivel FROM fichas WHERE id = ?", (ficha_id,))
+            nivel = cursor.fetchone()
+
+            cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+            nome = cursor.fetchone()[0]
+
+            if nivel == None or nivel[0] == None:
+                nivel = 0
+
+            if xp >= nivel+7:
+                await interaction.channel.send(f'{nome} Já pode subir de nível!')
+
             cursor.execute(f'''
             UPDATE fichas
             SET xp = ?
@@ -1623,7 +1887,219 @@ async def mov(interaction: discord.Interaction, movimento: str):
             conn.commit()
 
 
+    else:
+        await interaction.response.send_message('Você não tem fichas criadas. Use /criar_ficha para começar.')
 
+@bot.tree.command(name="calamidade", description="Role na tabela de Calamidade")
+async def calamidade(interaction: discord.Interaction):
+    
+
+    user_id = interaction.user.id
+
+    # Buscar a ficha do jogador pelo ID
+    cursor.execute('''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    ''', (user_id,))
+    ficha_ativa = cursor.fetchone()
+
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+    else:
+        await interaction.response.send_message('Você não tem fichas criadas. Use /criar_ficha para começar.')
+        return
+    # Extrair partes da expressão
+    n_dados = 2  # Número de dados, default 1
+    tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
+
+    # Realizar as rolagens
+    rolagens = [random.randint(1, tipo_dado) for _ in range(n_dados)]
+    soma_rolagens = sum(rolagens)
+
+    # Aplicar o modificador, se existir
+    resultado_final = soma_rolagens
+    
+    if resultado_final == 2:
+        resultado = "Dê seu Último Suspiro"
+    if resultado_final == 3:
+        resultado = "Seu pior pesadelo surge para te levar"
+    if resultado_final == 4:
+        resultado = "Tudo dá errado e é culpa sua"
+    if resultado_final == 5:
+        resultado = "Uma decisão terrível precisa ser tomad"
+    if resultado_final == 6:
+        resultado = "As luzes se apagam"
+    if resultado_final == 7:
+        resultado = "Você perde algo importante"
+    if resultado_final == 8:
+        resultado = "Uma nova ameaça aparece"
+    if resultado_final == 9:
+        resultado = "Você é marcado com um destino sombrio"
+    if resultado_final == 10:
+        resultado = "Tudo ao seu redor cai em ruína"
+    if resultado_final == 11:
+        resultado = "Você é traído por quem menos esperava"
+    if resultado_final == 12:
+        resultado = "Uma força absoluta trará o Fim"
+    
+    cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+    nome = cursor.fetchone()[0]
+
+
+
+    # Construir a mensagem de resultado
+    rolagens_str = ' + '.join(map(str, rolagens))
+    
+    resposta = f"**Uma Calamidade cai sobre {nome}!**\nRolagens: {rolagens_str} = {soma_rolagens}\nResultado Final: **{resultado_final}** - **{resultado}**"
+    
+
+    cursor.execute("SELECT sorte FROM fichas WHERE id = ?", (ficha_id,))
+    sorte = cursor.fetchone()[0]
+
+    if sorte == None:
+        sorte = 0
+    
+    sorte = sorte + 1
+
+    cursor.execute(f'''
+    UPDATE fichas
+    SET sorte = ?
+    WHERE id = ?
+    ''', (sorte, ficha_id))
+    conn.commit()
+
+    await interaction.response.send_message(resposta)
+
+@bot.tree.command(name="mb", description="Use um movimento básico")
+@app_commands.describe(movimento="O nome exato do movimento")
+async def mb(interaction: discord.Interaction, movimento: str):
+    user_id = interaction.user.id
+    # Buscar a ficha do jogador pelo ID
+    cursor.execute('''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = ?
+    ''', (user_id,))
+    ficha_ativa = cursor.fetchone()
+    try:
+        movimento = movimentos_basicos[movimento.lower()]
+    except KeyError:
+        await interaction.response.send_message('Esse movimento básico não existe! Use /help_mb para ver todos os movimentos básicos disponíveis.')
+        return  
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+
+        if "atributo" in movimento:
+            atributo = movimento['atributo']
+            if atributo in ["for","des","con","int","sab","car"]:
+                cursor.execute(f"SELECT {atributo} FROM fichas WHERE id = ?", (ficha_id,))
+                atributo = cursor.fetchone()[0]
+                atributo = obter_modificador(atributo)
+            else:
+                atributo = 0
+            mod = movimento['mod']
+
+            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = ?", (ficha_id,))
+            debilidades = cursor.fetchone()[0]
+            if debilidades == None or debilidades[0] == None:
+                debilidades = ""
+            debilidades = debilidades.lower()
+            if movimento['atributo'] == "for" and "fraco" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "con" and "doente" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "int" and "atordoado" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "sab" and "confuso" in debilidades:
+                mod = mod - 1
+            elif movimento['atributo'] == "car" and "marcado" in debilidades:
+                mod = mod - 1
+
+
+
+            n_dados = 2 # Número de dados, default 1
+            tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
+            modificador = mod+atributo     # Modificador aritmético (ex: +2, -1, *4)
+
+            # Realizar as rolagens
+            rolagens = [random.randint(1, tipo_dado) for _ in range(n_dados)]
+            soma_rolagens = sum(rolagens)
+
+            # Aplicar o modificador, se existir
+            resultado_final = soma_rolagens
+            if modificador:
+                resultado_final = eval(f"{soma_rolagens}+{modificador}")
+
+            # Construir a mensagem de resultado
+
+            cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+            nome = cursor.fetchone()[0]
+
+            resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n\n**{movimento['gatilho']}**\n\n"
+
+
+            rolagens_str = ' + '.join(map(str, rolagens))
+            if modificador and atributo:
+                resposta += f"**Rolagem: 2d6 **\nRolagens: {rolagens_str} = {soma_rolagens}\nModificadores: {movimento['atributo']}: {atributo} + Modificador: {mod}\n**Resultado Final: {resultado_final}**"
+            elif modificador:
+                resposta += f"**Rolagem: 2d6 **\nRolagens: {rolagens_str} = {soma_rolagens}\nModificador: {mod}\n**Resultado Final: {resultado_final}**"
+            elif atributo:
+                resposta += f"**Rolagem: 2d6 **\nRolagens: {rolagens_str} = {soma_rolagens}\nModificador: {movimento['atributo']}: {atributo}\n**Resultado Final: {resultado_final}**"
+            else:
+                resposta += f"**Rolagem: 2d6 **\nRolagens: {rolagens_str} = {resultado_final}"
+            
+            if resultado_final <=6:
+                resposta+="\nFracasso!\n"+movimento['fracasso']
+            elif resultado_final <=9:
+                resposta+="\nSucesso Parcial!\n"+movimento['sucesso_parcial']
+            elif resultado_final <=11:
+                resposta+="\nSucesso Total!\n"+movimento['sucesso_total']
+            elif resultado_final >=12:
+                resposta+="\nCrítico!\n"+movimento['critico']
+            if movimento['detalhes'] != "":
+                resposta+=f"\n\n{movimento['detalhes']}"
+        else:
+            cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+            nome = cursor.fetchone()[0]
+            resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n\n{movimento['gatilho']}\n\n{movimento['descricao']}"
+    
+        await interaction.response.send_message(resposta)
+
+
+
+        if resultado_final <=6:
+            cursor.execute("SELECT xp FROM fichas WHERE id = ?", (ficha_id,))
+            xp = cursor.fetchone()
+
+            if xp == (None,):
+                xp = [None,None]
+
+            xp = xp[0]
+
+            if xp == None:
+                xp = 0
+            
+            xp = int(xp) + 1
+
+            cursor.execute("SELECT nivel FROM fichas WHERE id = ?", (ficha_id,))
+            nivel = cursor.fetchone()
+
+            cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+            nome = cursor.fetchone()[0]
+
+            if nivel == None or nivel[0] == None:
+                nivel = 0
+            
+            if xp >= nivel+7:
+                await interaction.channel.send(f'{nome} Já pode subir de nível!')
+
+            cursor.execute(f'''
+            UPDATE fichas
+            SET xp = ?
+            WHERE id = ?
+            ''', (xp, ficha_id))
+            conn.commit()
+    else:
+        await interaction.response.send_message('Você não tem fichas criadas. Use /criar_ficha para começar.')        
 
 @bot.tree.command(name="xp", description="Adiciona xp à sua ficha ativa")
 @app_commands.describe(
@@ -1647,13 +2123,27 @@ async def xp(interaction: discord.Interaction, quantidade:int=1):
 
         if xp == (None,):
             xp = [None,None]
-
         xp = xp[0]
-
         if xp == None:
             xp = 0
         
         xp = int(xp) + quantidade
+
+        cursor.execute("SELECT nivel FROM fichas WHERE id = ?", (ficha_id,))
+        nivel = cursor.fetchone()
+
+        if nivel == None or nivel[0] == None:
+            nivel = 0
+
+        cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
+        nome = cursor.fetchone()[0]
+
+        if xp >= nivel+7:
+            await interaction.response.send_message(f'{nome} ganhou {quantidade} de xp.')
+            await interaction.channel.send(f'{nome} Já pode subir de nível!')
+        else:
+            await interaction.response.send_message(f'{nome} ganhou {quantidade} de xp.')
+
 
         cursor.execute(f'''
         UPDATE fichas
@@ -1662,10 +2152,6 @@ async def xp(interaction: discord.Interaction, quantidade:int=1):
         ''', (xp, ficha_id))
         conn.commit()
 
-        cursor.execute("SELECT nome FROM fichas WHERE id = ?", (ficha_id,))
-        nome = cursor.fetchone()[0]
-
-        await interaction.response.send_message(f'{nome} ganhou {quantidade} de xp.')
     else:
         await interaction.response.send_message('Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.')
 
@@ -1676,55 +2162,52 @@ async def help(interaction: discord.Interaction):
     **Comandos Disponíveis:**
 
     `/roll` - Simula uma rolagem de dados.  
-
     `/criar_ficha` - Cria uma ficha vazia com um nome.  
-
     `/mudar_ficha` - Muda qual é a sua ficha ativa.  
-
     `/listar_fichas` - Lista todas as fichas de um usuário.  
-    
     `/mostrar_ficha` - Mostra os detalhes da ficha ativa do jogador.  
-
     `/mostrar` - Mostra uma informação específica da ficha ativa do jogador.
-
     `/definir` - Edita um dado específico da ficha ativa do jogador.    
-
     `/add_item` - Adiciona um item ao inventário da ficha ativa do jogador.
-
     `/rem_item` - Remove um item do inventário da ficha ativa do jogador.
-
     `/mostrar_item` - Mostra um item do inventário da ficha ativa do jogador.
-    
     `/usar_item` - Usa um item do inventário da ficha ativa do jogador.
-
     `/vender_item` - Vende um item do inventário da ficha ativa do jogador.
-
     `/add_vinculo` - Adiciona um vínculo à ficha ativa do jogador.
-
     `/rem_vinculo` - Remove um vínculo à ficha ativa do jogador.
-
     `/mostrar_vínculo` - Mostra um vínculo da ficha ativa do jogador.
-
     `/add_mov_roll` - Adiciona um movimento com rolagem à ficha ativa do jogador.
-
     `/add_mov_text` - Adiciona  um movimento descritivo à ficha ativa do jogador.
-
     `/mov` - Usa um movimento da ficha ativa do jogador
-
     `/mb` - Usa um movimento básico
-
     `/rem_mov` - Remove um movimento da ficha ativa do jogador.
-
     `/mostrar_mov` - Mostra um movimento da ficha ativa do jogador.
-
+    `/atributo` - Faz uma rolagem simples de atributo.
+    `/debilidade` - Adiciona ou remove uma debilidade.
+    `/sorte` - Usa um ponto de sorte.
+    `/calamidade` - Rola na tabela de calamidades.
+    `/xp` - Adiciona um de xp.
     `/importar ficha` - Importa uma ficha em formato json 
-
     `/exportar ficha` - Exporta uma ficha em formato json 
-
     `/deletar ficha` - Deleta uma ficha
+    `/help_mb` - Lista todos os movimentos básicos
     
     """
     
+    # Envia a mensagem de ajuda
+    await interaction.response.send_message(help_message)
+
+@bot.tree.command(name="help_mb", description="Lista os movimentos básicos")
+async def help_mb(interaction: discord.Interaction):
+    # Mensagem de ajuda
+
+    lista = list(movimentos_basicos.keys())
+
+    help_message = ""
+    
+    for movi in lista:
+        help = help+f"`{movi}`\n"
+
     # Envia a mensagem de ajuda
     await interaction.response.send_message(help_message)
 
@@ -1745,8 +2228,6 @@ bot.run(os.getenv('TOKEN'))
 
 
 
-
-
 # @bot.tree.command(name="escolher_opcao")
 # @app_commands.describe(opcao="Escolha uma das opções disponíveis")
 # @app_commands.choices(
@@ -1758,6 +2239,8 @@ bot.run(os.getenv('TOKEN'))
 # )
 # async def escolher_opcao(interaction: discord.Interaction, opcao: str):
 #     await interaction.response.send_message(f"Você escolheu: {opcao}")
+
+
 
 
 
