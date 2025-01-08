@@ -2372,7 +2372,7 @@ async def dano(interaction: discord.Interaction, quantidade: int = 0, perfurante
         cursor.execute(
             f'''
         UPDATE fichas
-        SET vida_atual = %s
+        SET hp_atual = %s
         WHERE id = %s
         ''', (vida_atual, ficha_id))
         conn.commit()
@@ -2438,7 +2438,7 @@ async def cura(interaction: discord.Interaction, quantidade: int = 0):
         cursor.execute(
             f'''
         UPDATE fichas
-        SET vida_atual = %s
+        SET hp_atual = %s
         WHERE id = %s
         ''', (vida_atual, ficha_id))
         conn.commit()
