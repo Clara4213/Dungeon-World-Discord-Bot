@@ -2338,7 +2338,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
 
 @bot.tree.command(name="dano", description="Causa dano à sua ficha ativa")
 @app_commands.describe(quantidade="Quantidade de dano a ser recebido", perfurante="Pontos de armadura a se ignorar")
-async def dano(interaction: discord.Interaction, quantidade: int = 0, perfurante: int = 0):
+async def dano(interaction: discord.Interaction, quantidade: int, perfurante: int = 0):
     # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
     user_id = interaction.user.id
     cursor.execute(
