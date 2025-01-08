@@ -336,11 +336,11 @@ async def mudar_ficha(interaction: discord.Interaction, ficha_id: int):
         ''', (ficha_id, user_id))
         conn.commit()
         await interaction.response.send_message(
-            f'Ficha ativa alterada para: {ficha[1]}'
+            f'Ficha ativa alterada para: {ficha[0]}, ephemeral=True'
         )  # ficha[1] é o nome do personagem
     else:
         await interaction.response.send_message(
-            'Ficha não encontrada ou não pertence a você.')
+            'Ficha não encontrada ou não pertence a você.', ephemeral=True)
 
 
 @bot.tree.command(name="listar_fichas",
@@ -369,10 +369,10 @@ async def listar_fichas(interaction: discord.Interaction):
             ficha_id, nome, ativa = ficha
             resposta += f"ID: {ficha_id} | Nome: {nome} | Ativa: {ativa}\n"
 
-        await interaction.response.send_message(resposta)
+        await interaction.response.send_message(resposta, ephemeral=True)
     else:
         await interaction.response.send_message(
-            'Você não tem fichas criadas. Use /criar_ficha para começar.')
+            'Você não tem fichas criadas. Use /criar_ficha para começar.', ephemeral=True)
 
 
 @bot.tree.command(name="definir",
@@ -436,11 +436,11 @@ async def definir(interaction: discord.Interaction, parametro: str,
         conn.commit()
 
         await interaction.response.send_message(
-            f'O valor {parametro} da sua ficha ativa foi alterado para {valor}.'
+            f'O valor {parametro} da sua ficha ativa foi alterado para {valor}.', ephemeral=True
         )
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -570,7 +570,7 @@ async def add_item(interaction: discord.Interaction,
         ''', (inventario_json, ficha_id))
         conn.commit()
 
-        await interaction.response.send_message(f'O item {nome} foi adicionado'
+        await interaction.response.send_message(f'O item {nome} foi adicionado', ephemeral=True
                                                 )
 
         novacarga = calcular_peso_total(inventario_json)
@@ -598,7 +598,7 @@ async def add_item(interaction: discord.Interaction,
 
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -619,7 +619,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -628,7 +628,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
 
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
-        await interaction.response.send_message("Não há itens para remover.")
+        await interaction.response.send_message("Não há itens para remover.", ephemeral=True)
         return
 
     # Passo 2: Converter o JSON armazenado no banco para uma lista de dicionários
@@ -643,7 +643,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
     # Se o movimento não existir, exibe uma mensagem e sai
     if not item_existente:
         await interaction.response.send_message(
-            f"O item {nome_item} não foi encontrado")
+            f"O item {nome_item} não foi encontrado", ephemeral=True)
         return
 
     # Passo 4: Remover o movimento da lista
@@ -660,7 +660,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
 
     # Commit para garantir que as mudanças sejam salvas no banco de dados
     conn.commit()
-    await interaction.response.send_message(f"O item {nome_item} foi excluído")
+    await interaction.response.send_message(f"O item {nome_item} foi excluído", ephemeral=True)
 
     novacarga = calcular_peso_total(inventario_json)
 
@@ -688,9 +688,7 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
 @bot.tree.command(name="usar_item",
                   description="Usa um item da sua ficha ativa")
 @app_commands.describe(nome_item="Nome do item a ser usado.", )
-async def usar_item(interaction: discord.Interaction,
-                    nome_item: str,
-                    quantidade: int = 1):
+async def usar_item(interaction: discord.Interaction, nome_item: str, quantidade: int = 1):
     # Passo 1: Recuperar os movimentos atuais da ficha
     user_id = interaction.user.id
     # Buscar a ficha do jogador pelo ID
@@ -704,7 +702,7 @@ async def usar_item(interaction: discord.Interaction,
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -713,7 +711,7 @@ async def usar_item(interaction: discord.Interaction,
 
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
-        await interaction.response.send_message("Não há itens para remover.")
+        await interaction.response.send_message("Não há itens para usar.", ephemeral=True)
         return
 
     # Passo 2: Converter o JSON armazenado no banco para uma lista de dicionários
@@ -727,7 +725,7 @@ async def usar_item(interaction: discord.Interaction,
     # Se o movimento não existir, exibe uma mensagem e sai
     if not item_existente:
         await interaction.response.send_message(
-            f"O item {nome_item} não foi encontrado")
+            f"O item {nome_item} não foi encontrado", ephemeral=True)
         return
 
     match = re.search(r'(\d+)\s+usos', item_existente['descricao'])
@@ -800,7 +798,7 @@ async def vender_item(interaction: discord.Interaction,
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -809,7 +807,7 @@ async def vender_item(interaction: discord.Interaction,
 
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
-        await interaction.response.send_message("Não há itens para remover.")
+        await interaction.response.send_message("Não há itens para vender.", ephemeral=True)
         return
 
     # Passo 2: Converter o JSON armazenado no banco para uma lista de dicionários
@@ -824,7 +822,7 @@ async def vender_item(interaction: discord.Interaction,
     # Se o movimento não existir, exibe uma mensagem e sai
     if not item_existente:
         await interaction.response.send_message(
-            f"O item {nome_item} não foi encontrado")
+            f"O item {nome_item} não foi encontrado", ephemeral=True)
         return
 
     valor = quantidade * item_existente['valor']
@@ -912,7 +910,7 @@ async def mostrar_item(interaction: discord.Interaction, nome_item: str):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -921,7 +919,7 @@ async def mostrar_item(interaction: discord.Interaction, nome_item: str):
 
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
-        await interaction.response.send_message("Não há itens para mostrar.")
+        await interaction.response.send_message("Não há itens para mostrar.", ephemeral=True)
         return
 
     # Passo 2: Converter o JSON armazenado no banco para uma lista de dicionários
@@ -936,7 +934,7 @@ async def mostrar_item(interaction: discord.Interaction, nome_item: str):
     # Se o movimento não existir, exibe uma mensagem e sai
     if not item_existente:
         await interaction.response.send_message(
-            f"Item '{nome_item}' não encontrado.")
+            f"Item '{nome_item}' não encontrado.", ephemeral=True)
         return
 
     resposta = formatar_dicionarios([item_existente])
@@ -996,10 +994,10 @@ async def add_vinculo(interaction: discord.Interaction,
         conn.commit()
 
         await interaction.response.send_message(
-            f'O vínculo com {nome} foi adicionado')
+            f'O vínculo com {nome} foi adicionado', ephemeral=True)
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -1020,7 +1018,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -1029,7 +1027,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
 
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
-        await interaction.response.send_message("Não há vínculos para remover."
+        await interaction.response.send_message("Não há vínculos para remover.", ephemeral=True
                                                 )
         return
 
@@ -1045,7 +1043,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
     # Se o movimento não existir, exibe uma mensagem e sai
     if not vinculo_existente:
         await interaction.response.send_message(
-            f"O vínculo com {nome_vinculo} não foi encontrado")
+            f"O vínculo com {nome_vinculo} não foi encontrado", ephemeral=True)
         return
 
     # Passo 4: Remover o movimento da lista
@@ -1063,7 +1061,7 @@ async def rem_vinc(interaction: discord.Interaction, nome_vinculo: str):
     # Commit para garantir que as mudanças sejam salvas no banco de dados
     conn.commit()
     await interaction.response.send_message(
-        f"O vínculo com {nome_vinculo} foi excluído")
+        f"O vínculo com {nome_vinculo} foi excluído", ephemeral=True)
 
 
 @bot.tree.command(name="mostrar_vinculo",
@@ -1083,7 +1081,7 @@ async def mostrar_vinculo(interaction: discord.Interaction, nome_vinculo: str):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -1092,7 +1090,7 @@ async def mostrar_vinculo(interaction: discord.Interaction, nome_vinculo: str):
 
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
-        await interaction.response.send_message("Não há vínculos para mostrar."
+        await interaction.response.send_message("Não há vínculos para mostrar.", ephemeral=True
                                                 )
         return
 
@@ -1108,7 +1106,7 @@ async def mostrar_vinculo(interaction: discord.Interaction, nome_vinculo: str):
     # Se o movimento não existir, exibe uma mensagem e sai
     if not vinculo_existente:
         await interaction.response.send_message(
-            f"Vínculo '{nome_vinculo}' não encontrado.")
+            f"Vínculo '{nome_vinculo}' não encontrado.", ephemeral=True)
         return
 
     resposta = formatar_dicionarios([vinculo_existente])
@@ -1200,10 +1198,10 @@ async def add_mov_roll(interaction: discord.Interaction,
         conn.commit()
 
         await interaction.response.send_message(
-            f'O movimento {nome} foi adicionado')
+            f'O movimento {nome} foi adicionado', ephemeral=True)
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -1271,10 +1269,10 @@ async def add_mov_tex(interaction: discord.Interaction,
         conn.commit()
 
         await interaction.response.send_message(
-            f'O movimento {nome} foi adicionado')
+            f'O movimento {nome} foi adicionado', ephemeral=True)
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -1295,7 +1293,7 @@ async def mostrar_mov(interaction: discord.Interaction, nome_movimento: str):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -1305,7 +1303,7 @@ async def mostrar_mov(interaction: discord.Interaction, nome_movimento: str):
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
         await interaction.response.send_message(
-            "Não há movimentos para mostrar.")
+            "Não há movimentos para mostrar.", ephemeral=True)
         return
 
     # Passo 2: Converter o JSON armazenado no banco para uma lista de dicionários
@@ -1319,7 +1317,7 @@ async def mostrar_mov(interaction: discord.Interaction, nome_movimento: str):
     # Se o movimento não existir, exibe uma mensagem e sai
     if not movimento_existente:
         await interaction.response.send_message(
-            f"Movimento '{nome_movimento}' não encontrado.")
+            f"Movimento '{nome_movimento}' não encontrado.", ephemeral=True)
         return
 
     resposta = formatar_dicionarios([movimento_existente])
@@ -1344,7 +1342,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -1354,7 +1352,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
     # Se a ficha não tiver movimentos, não há nada para remover
     if not resultado or not resultado[0]:
         await interaction.response.send_message(
-            "Não há movimentos para remover.")
+            "Não há movimentos para remover.", ephemeral=True)
         return
 
     # Passo 2: Converter o JSON armazenado no banco para uma lista de dicionários
@@ -1368,7 +1366,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
     # Se o movimento não existir, exibe uma mensagem e sai
     if not movimento_existente:
         await interaction.response.send_message(
-            f"Movimento '{nome_movimento}' não encontrado.")
+            f"Movimento '{nome_movimento}' não encontrado.", ephemeral=True)
         return
 
     # Passo 4: Remover o movimento da lista
@@ -1386,7 +1384,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
     # Commit para garantir que as mudanças sejam salvas no banco de dados
     conn.commit()
     await interaction.response.send_message(
-        f"O movimento {nome_movimento} foi excluído")
+        f"O movimento {nome_movimento} foi excluído", ephemeral=True)
 
 
 @bot.tree.command(
@@ -1460,7 +1458,7 @@ async def exportar_ficha(interaction: discord.Interaction,
             ficha_id = ficha_ativa[0]
         else:
             await interaction.response.send_message(
-                'Você não possui uma ficha ativa e nem especificou o id da ficha a ser exportada'
+                'Você não possui uma ficha ativa e nem especificou o id da ficha a ser exportada', ephemeral=True
             )
             return
 
@@ -1514,7 +1512,7 @@ async def exportar_ficha(interaction: discord.Interaction,
         # Envia o arquivo JSON para o usuário
         await interaction.response.send_message(
             f"A ficha {ficha[2]} foi exportada com sucesso! Aqui está o arquivo.",
-            file=discord.File(f'ficha_{ficha[2]}.json'))
+            file=discord.File(f'ficha_{ficha[2]}.json', ephemeral=True))
 
         if os.path.exists(f'ficha_{ficha[2]}.json'):
             os.remove(f'ficha_{ficha[2]}.json')
@@ -1527,7 +1525,7 @@ async def exportar_ficha(interaction: discord.Interaction,
     else:
         # Caso a ficha não exista
         await interaction.response.send_message(
-            f"Nenhuma ficha encontrada com o ID {ficha_id}.")
+            f"Nenhuma ficha encontrada com o ID {ficha_id}.", ephemeral=True)
 
 
 @bot.tree.command(
@@ -1569,7 +1567,7 @@ async def deletar_ficha(interaction: discord.Interaction, ficha_id: int):
 
         # Mensagem de confirmação
         await interaction.response.send_message(
-            f"Ficha com ID {ficha_id} foi deletada com sucesso!")
+            f"Ficha com ID {ficha_id} foi deletada com sucesso!", ephemeral=True)
     except Exception as e:
         # Mensagem de erro
         await interaction.response.send_message(
@@ -1657,7 +1655,7 @@ async def importar_ficha(interaction: discord.Interaction,
         ''', (user_id, ficha_id))
         conn.commit()
         await interaction.response.send_message(
-            f'Ficha "{ficha_dict["nome"]}" importada com sucesso e marcada como ativa!'
+            f'Ficha "{ficha_dict["nome"]}" importada com sucesso e marcada como ativa!', ephemeral=True
         )
     else:
         await interaction.response.send_message(
@@ -1665,7 +1663,7 @@ async def importar_ficha(interaction: discord.Interaction,
 
     # Mensagem de confirmação
     await interaction.response.send_message(
-        f"Ficha importada com sucesso para {interaction.user.mention}!")
+        f"Ficha importada com sucesso para {interaction.user.mention}!", ephemeral=True)
 
 
 @bot.tree.command(name="roll", description="Simule uma rolagem de dados")
@@ -1677,7 +1675,7 @@ async def roll(interaction: discord.Interaction, expressao: str = "2d6"):
         match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)?', expressao)
         if not match:
             await interaction.response.send_message(
-                "Expressão inválida! Use o formato XdY+Z.")
+                "Expressão inválida! Use o formato XdY+Z.", ephemeral=True)
             return
 
         # Extrair partes da expressão
@@ -1706,7 +1704,7 @@ async def roll(interaction: discord.Interaction, expressao: str = "2d6"):
 
     except Exception as e:
         await interaction.response.send_message(
-            "Ocorreu um erro ao processar a rolagem. Verifique a expressão e tente novamente."
+            "Ocorreu um erro ao processar a rolagem. Verifique a expressão e tente novamente.", ephemeral=True
         )
 
 
@@ -1740,7 +1738,7 @@ async def atributo(interaction: discord.Interaction,
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
         return
 
@@ -1848,7 +1846,7 @@ async def debilidade(interaction: discord.Interaction, debilidade: str):
 
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -1895,7 +1893,7 @@ async def sorte(interaction: discord.Interaction):
 
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
@@ -1918,14 +1916,14 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
             valor = ficha[0]
         else:
             await interaction.response.send_message(
-                'Você não possui uma ficha ativa ou nenhuma ficha está definida como ativa.'
+                'Você não possui uma ficha ativa ou nenhuma ficha está definida como ativa.', ephemeral=True
             )
         if valor == None: valor = ""
         # Regex para capturar a expressão do dado
         match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)?', valor)
         if not match:
             await interaction.response.send_message(
-                "Expressão inválida! Use o formato XdY+Z.")
+                "Expressão inválida! Use o formato XdY+Z.", ephemeral=True)
             return
 
         # Extrair partes da expressão
@@ -1953,7 +1951,7 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
 
     except Exception as e:
         await interaction.response.send_message(
-            "Ocorreu um erro ao processar a rolagem. Verifique a expressão e tente novamente."
+            "Ocorreu um erro ao processar a rolagem. Verifique a expressão e tente novamente.", ephemeral=True
         )
 
 
@@ -2111,7 +2109,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
 
     else:
         await interaction.response.send_message(
-            'Você não tem fichas criadas. Use /criar_ficha para começar.')
+            'Você não tem fichas criadas. Use /criar_ficha para começar.', ephemeral=True)
 
 
 @bot.tree.command(name="calamidade",
@@ -2131,7 +2129,7 @@ async def calamidade(interaction: discord.Interaction):
         ficha_id = ficha_ativa[0]
     else:
         await interaction.response.send_message(
-            'Você não tem fichas criadas. Use /criar_ficha para começar.')
+            'Você não tem fichas criadas. Use /criar_ficha para começar.', ephemeral=True)
         return
     # Extrair partes da expressão
     n_dados = 2  # Número de dados, default 1
@@ -2208,7 +2206,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
         movimento = movimentos_basicos[movimento.lower()]
     except KeyError:
         await interaction.response.send_message(
-            'Esse movimento básico não existe! Use /help_mb para ver todos os movimentos básicos disponíveis.'
+            'Esse movimento básico não existe! Use /help_mb para ver todos os movimentos básicos disponíveis.', ephemeral=True
         )
         return
     if ficha_ativa:
@@ -2332,7 +2330,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             conn.commit()
     else:
         await interaction.response.send_message(
-            'Você não tem fichas criadas. Use /criar_ficha para começar.')
+            'Você não tem fichas criadas. Use /criar_ficha para começar.', ephemeral=True)
 
 
 @bot.tree.command(name="xp", description="Adiciona xp à sua ficha ativa")
@@ -2389,7 +2387,7 @@ async def xp(interaction: discord.Interaction, quantidade: int = 1):
 
     else:
         await interaction.response.send_message(
-            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.'
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
 
 
