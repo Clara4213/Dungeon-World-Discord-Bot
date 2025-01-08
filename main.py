@@ -1512,7 +1512,7 @@ async def exportar_ficha(interaction: discord.Interaction,
         # Envia o arquivo JSON para o usuário
         await interaction.response.send_message(
             f"A ficha {ficha[2]} foi exportada com sucesso! Aqui está o arquivo.",
-            file=discord.File(f'ficha_{ficha[2]}.json', ephemeral=True))
+            file=discord.File(f'ficha_{ficha[2]}.json'), ephemeral=True)
 
         if os.path.exists(f'ficha_{ficha[2]}.json'):
             os.remove(f'ficha_{ficha[2]}.json')
@@ -2085,13 +2085,13 @@ async def mov(interaction: discord.Interaction, movimento: str, modificador: int
 
             cursor.execute("SELECT nivel FROM fichas WHERE id = %s",
                            (ficha_id, ))
-            nivel = cursor.fetchone()
+            nivel = cursor.fetchone()[0]
 
             cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
-            if nivel == None or nivel[0] == None:
+            if nivel == None:
                 nivel = 0
 
             if xp >= nivel + 7:
