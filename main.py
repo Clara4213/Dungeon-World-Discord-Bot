@@ -1167,14 +1167,14 @@ async def add_mov_roll(interaction: discord.Interaction,
 
         novo_movimento = {
             "nome": nome,
-            "gatilho": gatilho,
+            "gatilho": gatilho.replace("  ","\n"),
             "atributo": atributo,
             "mod": mod,
-            "sucesso_total": sucesso_total,
-            "sucesso_parcial": sucesso_parcial,
-            "fracasso": fracasso,
-            "detalhes": detalhes,
-            "critico": critico
+            "sucesso_total": sucesso_total.replace("  ","\n"),
+            "sucesso_parcial": sucesso_parcial.replace("  ","\n"),
+            "fracasso": fracasso.replace("  ","\n"),
+            "detalhes": detalhes.replace("  ","\n"),
+            "critico": critico.replace("  ","\n")
         }
 
         movimento_existente = next(
@@ -1244,9 +1244,9 @@ async def add_mov_tex(interaction: discord.Interaction,
             movimentos_json)  # Converter de JSON para um objeto Python
 
         novo_movimento = {
-            "nome": nome,
-            "gatilho": gatilho,
-            "descricao": descricao
+            "nome": nome.replace("  ","\n"),
+            "gatilho": gatilho.replace("  ","\n"),
+            "descricao": descricao.replace("  ","\n")
         }
         movimento_existente = next(
             (mov for mov in movimentos if mov["nome"].lower() == nome.lower()),
