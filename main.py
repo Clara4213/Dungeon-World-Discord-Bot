@@ -1955,19 +1955,16 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
         )
 
 
-@bot.tree.command(name="mov",
-                  description="Use um movimento da sua ficha ativa")
+@bot.tree.command(name="mov",description="Use um movimento da sua ficha ativa")
 @app_commands.describe(movimento="O nome exato do movimento")
 async def mov(interaction: discord.Interaction, movimento: str):
     user_id = interaction.user.id
-
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
         '''
     SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
     ''', (user_id, ))
     ficha_ativa = cursor.fetchone()
-
     if ficha_ativa:
         ficha_id = ficha_ativa[0]
 
@@ -2072,17 +2069,19 @@ async def mov(interaction: discord.Interaction, movimento: str):
 
         if resultado_final <= 6:
             cursor.execute("SELECT xp FROM fichas WHERE id = %s", (ficha_id, ))
-            xp = cursor.fetchone()
-
-            if xp == (None, ):
-                xp = [None, None]
-
-            xp = xp[0]
+            xp = cursor.fetchone()[0]
 
             if xp == None:
                 xp = 0
 
             xp = int(xp) + 1
+
+            cursor.execute(
+            f'''
+            UPDATE fichas
+            SET xp = %s
+            WHERE id = %s
+            ''', (xp, ficha_id))
 
             cursor.execute("SELECT nivel FROM fichas WHERE id = %s",
                            (ficha_id, ))
@@ -2295,17 +2294,20 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
 
         if resultado_final <= 6:
             cursor.execute("SELECT xp FROM fichas WHERE id = %s", (ficha_id, ))
-            xp = cursor.fetchone()
+            xp = cursor.fetchone()[0]
 
-            if xp == (None, ):
-                xp = [None, None]
-
-            xp = xp[0]
 
             if xp == None:
                 xp = 0
 
             xp = int(xp) + 1
+
+            cursor.execute(
+                f'''
+                UPDATE fichas
+                SET xp = %s
+                WHERE id = %s
+                ''', (xp, ficha_id))
 
             cursor.execute("SELECT nivel FROM fichas WHERE id = %s",
                            (ficha_id, ))
@@ -2351,11 +2353,9 @@ async def xp(interaction: discord.Interaction, quantidade: int = 1):
         ficha_id = ficha_ativa[0]
 
         cursor.execute("SELECT xp FROM fichas WHERE id = %s", (ficha_id, ))
-        xp = cursor.fetchone()
+        xp = cursor.fetchone()[0]
 
-        if xp == (None, ):
-            xp = [None, None]
-        xp = xp[0]
+        
         if xp == None:
             xp = 0
 
