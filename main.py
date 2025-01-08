@@ -2336,6 +2336,123 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             'Você não tem fichas criadas. Use /criar_ficha para começar.', ephemeral=True)
 
 
+@bot.tree.command(name="dano", description="Causa dano à sua ficha ativa")
+@app_commands.describe(quantidade="Quantidade de dano a ser recebido", perfurante="Pontos de armadura a se ignorar")
+async def dano(interaction: discord.Interaction, quantidade: int = 0, perfurante: int = 0):
+    # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
+    user_id = interaction.user.id
+    cursor.execute(
+        '''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
+    ''', (user_id, ))
+    ficha_ativa = cursor.fetchone()
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+        cursor.execute("SELECT hp_atual FROM fichas WHERE id = %s", (ficha_id, ))
+        vida_atual = cursor.fetchone()[0]
+        if vida_atual == None:
+            vida_atual = 0
+        cursor.execute("SELECT armadura FROM fichas WHERE id = %s", (ficha_id, ))
+        armadura = cursor.fetchone()[0]
+        if armadura == None:
+            armadura = 0
+        armaduraefetiva = armadura - perfurante
+        if armaduraefetiva < 0:
+            armaduraefetiva = 0
+        damage = quantidade - armaduraefetiva
+        if damage < 0: 
+            damage = 0
+        vida_atual = vida_atual - damage
+        if vida_atual < 0:
+            vida_atual = 0
+
+        cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
+        nome = cursor.fetchone()[0]
+
+        cursor.execute(
+            f'''
+        UPDATE fichas
+        SET vida_atual = %s
+        WHERE id = %s
+        ''', (vida_atual, ficha_id))
+        conn.commit()
+
+        resposta = f'{nome},'
+        if armadura:
+            resposta += f' que tem {armadura} de armadura,'
+        
+        resposta += f" recebeu {quantidade} de dano"
+
+        if armadura and perfurante:
+            resposta += f", mas o ataque ignora {perfurante} de armadura."
+        else:
+            resposta += f"."
+
+        resposta += f" Sua vida atual agora é {vida_atual}."
+
+        await interaction.response.send_message(
+            resposta
+        )
+    else:
+        await interaction.response.send_message(
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
+        )
+
+
+
+@bot.tree.command(name="cura", description="Recupera HP da sua ficha ativa")
+@app_commands.describe(quantidade="Quantidade de dano a ser curado")
+async def cura(interaction: discord.Interaction, quantidade: int = 0):
+    # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
+    user_id = interaction.user.id
+    cursor.execute(
+        '''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
+    ''', (user_id, ))
+    ficha_ativa = cursor.fetchone()
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+        
+        cursor.execute("SELECT hp_atual FROM fichas WHERE id = %s", (ficha_id, ))
+        vida_atual = cursor.fetchone()[0]
+        if vida_atual == None:
+            vida_atual = 0
+        
+        cursor.execute("SELECT hp_max FROM fichas WHERE id = %s", (ficha_id, ))
+        vida_max = cursor.fetchone()[0]
+        if vida_max == None:
+            vida_max = 0
+        
+        if quantidade == 0:
+            quantidade = vida_max/2
+            quantidade = int(quantidade)
+        
+        vida_atual += quantidade
+
+        if vida_atual > vida_max:
+            vida_atual = vida_max
+
+        cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
+        nome = cursor.fetchone()[0]
+
+        cursor.execute(
+            f'''
+        UPDATE fichas
+        SET vida_atual = %s
+        WHERE id = %s
+        ''', (vida_atual, ficha_id))
+        conn.commit()
+
+        await interaction.response.send_message(
+            f"{nome} se curou de {quantidade} pontos de dano, ficando com {vida_atual} de vida atual"
+        )
+    else:
+        await interaction.response.send_message(
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
+        )
+
+
+
 @bot.tree.command(name="xp", description="Adiciona xp à sua ficha ativa")
 @app_commands.describe(quantidade="Quantidade de xp a ser adicionada")
 async def xp(interaction: discord.Interaction, quantidade: int = 1):
@@ -2390,6 +2507,19 @@ async def xp(interaction: discord.Interaction, quantidade: int = 1):
         await interaction.response.send_message(
             'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
         )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @bot.tree.command(name="help", description="Lista os comandos")
