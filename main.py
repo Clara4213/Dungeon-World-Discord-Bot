@@ -78,14 +78,14 @@ def formatar_vinculos(vinculos):
         vinculos = "[]"
     vinculos = json.loads(vinculos)
     # Títulos das colunas
-    cabecalho = "Nome                              | Descrição                                                                | Valor"
+    cabecalho = "Nome                                                            | Valor"
     separador = "-" * len(cabecalho)
 
     # Construindo cada linha do inventário
     linhas = []
     for item in vinculos:
         linhas.append(
-            f"{item['nome']:<33} | {item['descricao']:<72} | {item['valor']:^5}"
+            f"{item['nome']:<63} | {item['valor']:^5}"
         )
 
     # Juntando tudo
