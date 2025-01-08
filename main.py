@@ -336,7 +336,7 @@ async def mudar_ficha(interaction: discord.Interaction, ficha_id: int):
         ''', (ficha_id, user_id))
         conn.commit()
         await interaction.response.send_message(
-            f'Ficha ativa alterada para: {ficha[0]}, ephemeral=True'
+            f'Ficha ativa alterada para: {ficha[0]}', ephemeral=True
         )  # ficha[1] é o nome do personagem
     else:
         await interaction.response.send_message(
@@ -469,10 +469,10 @@ async def definir(interaction: discord.Interaction, parametro: str,
     app_commands.Choice(name="Inteligência", value="int"),
     app_commands.Choice(name="Sabedoria", value="sab"),
     app_commands.Choice(name="Carisma", value="car"),
+    app_commands.Choice(name="Debilidades", value="debilidades"),
     app_commands.Choice(name="Carga Máxima", value="carga_max"),
     app_commands.Choice(name="Carga Atual", value="carga_atual"),
     app_commands.Choice(name="Sorte", value="sorte"),
-    app_commands.Choice(name="Debilidades", value="debilidades"),
     app_commands.Choice(name="Notas", value="notas")
 ])
 async def mostrar(interaction: discord.Interaction, parametro: str):
@@ -1492,13 +1492,13 @@ async def exportar_ficha(interaction: discord.Interaction,
             'int': ficha[18],
             'sab': ficha[19],
             'car': ficha[20],
-            'carga_max': ficha[21],
-            'carga_atual': ficha[22],
-            'inventario': ficha[23],
-            'vinculos': ficha[24],
-            'movimentos': ficha[25],
-            'sorte': ficha[26],
-            'debilidades': ficha[27],
+            'debilidades': ficha[21],
+            'carga_max': ficha[22],
+            'carga_atual': ficha[23],
+            'inventario': ficha[24],
+            'vinculos': ficha[25],
+            'movimentos': ficha[26],
+            'sorte': ficha[27],
             'notas': ficha[28]
         }
 
@@ -1605,13 +1605,13 @@ async def importar_ficha(interaction: discord.Interaction,
         'int': ficha_json.get('int'),
         'sab': ficha_json.get('sab'),
         'car': ficha_json.get('car'),
+        'debilidades': ficha_json.get('debilidades'),
         'carga_max': ficha_json.get('carga_max'),
         'carga_atual': ficha_json.get('carga_atual'),
         'inventario': ficha_json.get('inventario', []),
         'vinculos': ficha_json.get('vinculos', []),
         'movimentos': ficha_json.get('movimentos', []),
         'sorte': ficha_json.get('sorte'),
-        'debilidades': ficha_json.get('debilidades'),
         'notas': ficha_json.get('notas')
     }
 
@@ -1621,9 +1621,9 @@ async def importar_ficha(interaction: discord.Interaction,
         '''
     INSERT INTO fichas (user_id, nome, aparencia, classe, xp, nivel, alinhamento, 
             alinhamento_detalhe, raca, raca_texto, dado_dano, hp_atual, 
-            hp_max, armadura, str, des, con, int, sab, car, 
+            hp_max, armadura, str, des, con, int, sab, car, debilidades,
             carga_max, carga_atual, inventario, vinculos, movimentos, 
-            sorte, debilidades, notas)
+            sorte, notas)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     RETURNING id
     ''', (user_id, ficha_dict['nome'], ficha_dict['aparencia'],
@@ -1633,10 +1633,10 @@ async def importar_ficha(interaction: discord.Interaction,
           ficha_dict['dado_dano'], ficha_dict['hp_atual'],
           ficha_dict['hp_max'], ficha_dict['armadura'], ficha_dict['str'],
           ficha_dict['des'], ficha_dict['con'], ficha_dict['int'],
-          ficha_dict['sab'], ficha_dict['car'], ficha_dict['carga_max'],
+          ficha_dict['sab'], ficha_dict['car'],  ficha_dict['debilidades'], ficha_dict['carga_max'],
           ficha_dict['carga_atual'], ficha_dict['inventario'],
           ficha_dict['vinculos'], ficha_dict['movimentos'],
-          ficha_dict['sorte'], ficha_dict['debilidades'], ficha_dict['notas']))
+          ficha_dict['sorte'],ficha_dict['notas']))
     conn.commit()
 
     ficha_id = cursor.fetchone()[0]
