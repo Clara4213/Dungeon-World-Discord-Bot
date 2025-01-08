@@ -1535,6 +1535,25 @@ async def exportar_ficha(interaction: discord.Interaction,
     description="Deleta uma ficha do banco de dados pelo ID da ficha")
 async def deletar_ficha(interaction: discord.Interaction, ficha_id: int):
     try:
+
+        user_id = interaction.user.id
+
+        # Buscar a ficha do jogador pelo ID
+        cursor.execute(
+            '''
+        SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
+        ''', (user_id, ))
+        ficha_ativa = cursor.fetchone()
+        if ficha_ativa:
+            ficha_ativa_id = ficha_ativa[0]
+        else:
+            ficha_ativa_id = -1
+        
+        if ficha_id == ficha_ativa_id:
+            await interaction.response.send_message(
+                f"Você não pode deletar sua ficha ativa! Crie outra e ative ela antes de deletar esta!", ephemeral=True)
+            return
+
         # Verificar se a ficha com o ID fornecido existe
         cursor.execute('SELECT * FROM fichas WHERE id = %s', (ficha_id, ))
         ficha = cursor.fetchone()
