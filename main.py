@@ -1753,25 +1753,25 @@ async def atributo(interaction: discord.Interaction,
         atributomod = obter_modificador(atributomod)
     else:
         atributomod = 0
-
-    cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
-                   (ficha_id, ))
-    debilidades = cursor.fetchone()[0]
-    if debilidades == None:
-        debilidades = ""
-    debilidades = debilidades.lower()
-    if atributo == "str" and "fraco" in debilidades:
-        mod = mod - 1
-    elif atributo == "des" and "trêmulo" in debilidades:
-        mod = mod - 1
-    elif atributo == "con" and "doente" in debilidades:
-        mod = mod - 1
-    elif atributo == "int" and "atordoado" in debilidades:
-        mod = mod - 1
-    elif atributo == "sab" and "confuso" in debilidades:
-        mod = mod - 1
-    elif atributo == "car" and "marcado" in debilidades:
-        mod = mod - 1
+    if atributo:
+        cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
+                    (ficha_id, ))
+        debilidades = cursor.fetchone()[0]
+        if debilidades == None:
+            debilidades = ""
+        debilidades = debilidades.lower()
+        if atributo == "str" and "fraco" in debilidades:
+            mod = mod - 1
+        elif atributo == "des" and "trêmulo" in debilidades:
+            mod = mod - 1
+        elif atributo == "con" and "doente" in debilidades:
+            mod = mod - 1
+        elif atributo == "int" and "atordoado" in debilidades:
+            mod = mod - 1
+        elif atributo == "sab" and "confuso" in debilidades:
+            mod = mod - 1
+        elif atributo == "car" and "marcado" in debilidades:
+            mod = mod - 1
 
     modificador = mod
 
@@ -1999,25 +1999,25 @@ async def mov(interaction: discord.Interaction, movimento: str):
             else:
                 atributo = 0
             mod = movimento_especifico['mod']
-
-            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
-                           (ficha_id, ))
-            debilidades = cursor.fetchone()[0]
-            if debilidades == None:
-                debilidades = ""
-            debilidades = debilidades.lower()
-            if movimento['atributo'] == "str" and "fraco" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "con" and "doente" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "int" and "atordoado" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "sab" and "confuso" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "car" and "marcado" in debilidades:
-                mod = mod - 1
+            if atributo:
+                cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
+                            (ficha_id, ))
+                debilidades = cursor.fetchone()[0]
+                if debilidades == None:
+                    debilidades = ""
+                debilidades = debilidades.lower()
+                if movimento['atributo'] == "str" and "fraco" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "con" and "doente" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "int" and "atordoado" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "sab" and "confuso" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "car" and "marcado" in debilidades:
+                    mod = mod - 1
 
             n_dados = 2  # Número de dados, default 1
             tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
@@ -2223,24 +2223,25 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
                 atributo = 0
             mod = movimento['mod']
             mod = mod+modificador
-            cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
-                           (ficha_id, ))
-            debilidades = cursor.fetchone()[0]
-            if debilidades == None:
-                debilidades = ""
-            debilidades = debilidades.lower()
-            if movimento['atributo'] == "str" and "fraco" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "con" and "doente" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "int" and "atordoado" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "sab" and "confuso" in debilidades:
-                mod = mod - 1
-            elif movimento['atributo'] == "car" and "marcado" in debilidades:
-                mod = mod - 1
+            if atributo:
+                cursor.execute(f"SELECT debilidades FROM fichas WHERE id = %s",
+                            (ficha_id, ))
+                debilidades = cursor.fetchone()[0]
+                if debilidades == None:
+                    debilidades = ""
+                debilidades = debilidades.lower()
+                if movimento['atributo'] == "str" and "fraco" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "des" and "trêmulo" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "con" and "doente" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "int" and "atordoado" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "sab" and "confuso" in debilidades:
+                    mod = mod - 1
+                elif movimento['atributo'] == "car" and "marcado" in debilidades:
+                    mod = mod - 1
 
             n_dados = 2  # Número de dados, default 1
             tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
