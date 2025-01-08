@@ -1985,7 +1985,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
         movimento_especifico = next(
             (x for x in movimentos if x["nome"].lower() == movimento.lower()),
             None)
-
+        movimento = movimento_especifico
         if "atributo" in movimento_especifico:
             atributo = movimento_especifico['atributo']
             if atributo in ["str", "des", "con", "int", "sab", "car"]:
