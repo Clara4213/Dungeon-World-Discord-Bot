@@ -1956,8 +1956,8 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
 
 
 @bot.tree.command(name="mov",description="Use um movimento da sua ficha ativa")
-@app_commands.describe(movimento="O nome exato do movimento")
-async def mov(interaction: discord.Interaction, movimento: str):
+@app_commands.describe(movimento="O nome exato do movimento", modificador ="Modificador na rolagem")
+async def mov(interaction: discord.Interaction, movimento: str, modificador: int = 0):
     user_id = interaction.user.id
     # Buscar a ficha do jogador pelo ID
     cursor.execute(
@@ -2018,7 +2018,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
 
             n_dados = 2  # Número de dados, default 1
             tipo_dado = 6  # Tipo de dado (ex: 6 para d6)
-            modificador = mod + atributo  # Modificador aritmético (ex: +2, -1, *4)
+            modificador = modificador + mod + atributo  # Modificador aritmético (ex: +2, -1, *4)
 
             # Realizar as rolagens
             rolagens = [random.randint(1, tipo_dado) for _ in range(n_dados)]
