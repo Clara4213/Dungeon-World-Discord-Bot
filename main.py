@@ -1655,7 +1655,7 @@ async def importar_ficha(interaction: discord.Interaction,
 async def roll(interaction: discord.Interaction, expressao: str = "2d6"):
     try:
         # Regex para capturar a expressão do dado
-        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)%s', expressao)
+        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)?', expressao)
         if not match:
             await interaction.response.send_message(
                 "Expressão inválida! Use o formato XdY+Z.")
@@ -1903,7 +1903,7 @@ async def db(interaction: discord.Interaction, modificador_extra: int = 0):
             )
         if valor == None: valor = ""
         # Regex para capturar a expressão do dado
-        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)%s', valor)
+        match = re.fullmatch(r'(\d*)d(\d+)([+\-*/]\d+)?', valor)
         if not match:
             await interaction.response.send_message(
                 "Expressão inválida! Use o formato XdY+Z.")
