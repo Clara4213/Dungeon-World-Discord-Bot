@@ -593,6 +593,8 @@ async def add_item(interaction: discord.Interaction,
         if cargamax == None: cargamax = 0
 
         if cargaatual > cargamax:
+            cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
+            nome = cursor.fetchone()[0]
             await interaction.channel.send(
                 f'{nome} está carregando itens demais!')
 
@@ -680,6 +682,9 @@ async def rem_item(interaction: discord.Interaction, nome_item: str):
     cursor.execute("SELECT carga_max FROM fichas WHERE id = %s", (ficha_id, ))
     cargamax = cursor.fetchone()[0]
     if cargamax == None: cargamax = 0
+
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
+    nome = cursor.fetchone()[0]
 
     if cargaatual > cargamax:
         await interaction.channel.send(f'{nome} está carregando itens demais!')
@@ -774,6 +779,9 @@ async def usar_item(interaction: discord.Interaction, nome_item: str, quantidade
     cursor.execute("SELECT carga_max FROM fichas WHERE id = %s", (ficha_id, ))
     cargamax = cursor.fetchone()[0]
     if cargamax == None: cargamax = 0
+
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
+    nome = cursor.fetchone()[0]
 
     if cargaatual > cargamax:
         await interaction.channel.send(f'{nome} está carregando itens demais!')
@@ -888,6 +896,9 @@ async def vender_item(interaction: discord.Interaction,
     cursor.execute("SELECT carga_max FROM fichas WHERE id = %s", (ficha_id, ))
     cargamax = cursor.fetchone()[0]
     if cargamax == None: cargamax = 0
+
+    cursor.execute("SELECT nome FROM fichas WHERE id = %s", (ficha_id, ))
+    nome = cursor.fetchone()[0]
 
     if cargaatual > cargamax:
         await interaction.channel.send(f'{nome} está carregando itens demais!')
