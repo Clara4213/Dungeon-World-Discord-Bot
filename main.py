@@ -364,7 +364,7 @@ async def listar_fichas(interaction: discord.Interaction):
 
     if fichas:
         # Cria uma lista formatada para exibir as fichas
-        resposta = "Suas fichas:\n\n"
+        resposta = "Suas fichas:\n"
         for ficha in fichas:
             ficha_id, nome, ativa = ficha
             resposta += f"ID: {ficha_id} | Nome: {nome} | Ativa: {ativa}\n"
@@ -2038,7 +2038,7 @@ async def mov(interaction: discord.Interaction, movimento: str):
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
-            resposta = f"**{nome}** usou o movimento **{movimento_especifico['nome']}**:\n\n**{movimento_especifico['gatilho']}**\n\n"
+            resposta = f"**{nome}** usou o movimento **{movimento_especifico['nome']}**:\n**{movimento_especifico['gatilho']}**\n"
 
             rolagens_str = ' + '.join(map(str, rolagens))
             if modificador and atributo:
@@ -2061,12 +2061,12 @@ async def mov(interaction: discord.Interaction, movimento: str):
             elif resultado_final >= 12:
                 resposta += "\nCrítico!\n" + movimento_especifico['critico']
             if movimento_especifico['detalhes'] != "":
-                resposta += f"\n\n{movimento_especifico['detalhes']}"
+                resposta += f"\n{movimento_especifico['detalhes']}"
         else:
             cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
-            resposta = f"**{nome}** usou o movimento **{movimento_especifico['nome']}**:\n\n{movimento_especifico['gatilho']}\n\n{movimento_especifico['descricao']}"
+            resposta = f"**{nome}** usou o movimento **{movimento_especifico['nome']}**:\n{movimento_especifico['gatilho']}\n{movimento_especifico['descricao']}"
 
         await interaction.response.send_message(resposta)
 
@@ -2261,7 +2261,7 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
 
-            resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n\n**{movimento['gatilho']}**\n\n"
+            resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n**{movimento['gatilho']}**\n"
 
             rolagens_str = ' + '.join(map(str, rolagens))
             if modificador and atributo:
@@ -2283,12 +2283,12 @@ async def mb(interaction: discord.Interaction, movimento: str, modificador: int 
             elif resultado_final >= 12:
                 resposta += "\nCrítico!\n" + movimento['critico']
             if movimento['detalhes'] != "":
-                resposta += f"\n\n{movimento['detalhes']}"
+                resposta += f"\n{movimento['detalhes']}"
         else:
             cursor.execute("SELECT nome FROM fichas WHERE id = %s",
                            (ficha_id, ))
             nome = cursor.fetchone()[0]
-            resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n\n{movimento['gatilho']}\n\n{movimento['descricao']}"
+            resposta = f"**{nome}** usou o movimento **{movimento['nome']}**:\n{movimento['gatilho']}\n{movimento['descricao']}"
 
         await interaction.response.send_message(resposta)
 
