@@ -2470,6 +2470,44 @@ async def cura(interaction: discord.Interaction, quantidade: int = 0):
 
 
 
+@bot.tree.command(name="anotar", description="Adiciona algo às suas anotações")
+@app_commands.describe(texto="Texto a ser adicionado")
+async def cura(interaction: discord.Interaction, texto: str):
+    # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
+    user_id = interaction.user.id
+    cursor.execute(
+        '''
+    SELECT ficha_ativa_id FROM fichas_ativas WHERE user_id = %s
+    ''', (user_id, ))
+    ficha_ativa = cursor.fetchone()
+    if ficha_ativa:
+        ficha_id = ficha_ativa[0]
+        
+        cursor.execute("SELECT notas FROM fichas WHERE id = %s", (ficha_id, ))
+        notas = cursor.fetchone()[0]
+        if notas == None:
+            notas = ""
+        
+        notas = notas+"\n\n"+texto
+
+
+        cursor.execute(
+            f'''
+        UPDATE fichas
+        SET notas = %s
+        WHERE id = %s
+        ''', (notas, ficha_id))
+        conn.commit()
+
+        await interaction.response.send_message(
+            f"Notas atualizadas!", ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            'Você não possui uma ficha ativa. Use /mudar_ficha para selecionar ou /criar_ficha para criar uma.', ephemeral=True
+        )
+
+
 @bot.tree.command(name="xp", description="Adiciona xp à sua ficha ativa")
 @app_commands.describe(quantidade="Quantidade de xp a ser adicionada")
 async def xp(interaction: discord.Interaction, quantidade: int = 1):
