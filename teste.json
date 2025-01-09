@@ -1,29 +1,55 @@
-{
-    "nome" : "",
-    "aparencia" : "",
-    "classe" : "",
-    "xp" : "",
-    "nivel"  : "",
-    "alinhamento"  : "",
-    "alinhamento_detalhe"  : "",
-    "raca"  : "",
-    "raca_texto"  : "",
-    "dado_dano"  : "",
-    "hp_atual"  : "",
-    "hp_max"  : "",
-    "armadura"  : "",
-    "for"  : "",
-    "des"  : "",
-    "con"  : "",
-    "int"  : "",
-    "sab"  : "",
-    "car"  : "",
-    "debilidades"  : "",
-    "carga_max"  : "",
-    "carga_atual"  : "",
-    "inventario"  : "",
-    "vinculos"  : "",
-    "movimentos"  : "",
-    "sorte"  : "",
-    "notas" : ""
-}
+[
+    {
+        "nome": "Além Daquela Orla",
+        "gatilho": "Quando você der o seu Último Suspiro...",
+        "descricao": "Essa não é a primeira vez que você espia além dos Portões Negros. A Morte te cumprimenta como uma velha amiga, rival, ex-amante ou inimiga odiada. Você sempre adiciona o seu Modificador de Constituição aos seus Últimos Suspiros, mas seus resultados de 10+ contam como 7-9"
+    },
+    {
+        "nome": "Reanimar",
+        "gatilho": "Quando você fazer os mortos se levantarem… role +INT",
+        "atributo": "int",
+        "mod": 0,
+        "sucesso_total": "Um punhado deles se levanta, prontos para se juntar à sua Horda",
+        "sucesso_parcial": "Apenas um ou dois são fortes o bastante para se levantarem",
+        "fracasso": "Você ainda ganha um, em adição ao que quer que a MJ diga.",
+        "detalhes": "",
+        "critico": "**Crítico!**\nUm punhado deles se levanta, prontos para se juntar à sua Horda"
+    },
+    {
+        "nome": "Mortício",
+        "gatilho": "Quando você tiver tempo e segurança para analisar um cadáver, role +INT",
+        "atributo": "int",
+        "mod": 0,
+        "sucesso_total": "10+ Você descobre o motivo e o tempo estimado de morte, e ainda consegue uma informação valiosa ou útil sobre a morte.",
+        "sucesso_parcial": "7-9 Você descobre o motivo e o tempo estimado de morte",
+        "fracasso": "",
+        "detalhes": "",
+        "critico": "**Crítico!**\n10+ Você descobre o motivo e o tempo estimado de morte, e ainda consegue uma informação valiosa ou útil sobre a morte."
+    },
+    {
+        "nome": "Morrer é Mudar",
+        "gatilho": "",
+        "descricao": "Em conjunto com a MJ, dê à sua Horda um novo rótulo, ou altere um já existente\nLentos -> Fiéis"
+    },
+    {
+        "nome": "Crescer a Horda",
+        "gatilho": "",
+        "descricao": "Dê à sua Horda +1 em um atributo (Tripas), e um novo rótulo: (Criativos)"
+    },
+    {
+        "nome": "Comandar",
+        "gatilho": "Quando comandar a Horda Desmorta, role o atributo dela de acordo.",
+        "atributo": "",
+        "mod": 0,
+        "sucesso_total": "Seu comando é executado com Sucesso",
+        "sucesso_parcial": "Acontece, mas eles entram em perigo ou você perde um deles",
+        "fracasso": "",
+        "detalhes": "",
+        "critico": "**Crítico!**\nSeu comando é executado com Sucesso"
+    },
+    {
+        "nome": "Horda Desmorta",
+        "gatilho": "",
+        "descricao": "A vIda é fugaz, mas os mortos podem te servir para sempre.\n Sua Horda dá dano igual ao seu tamanho+1.\n\nTamanho: 2\n-->Humano\n-->Humano\n\nAtributos:\n-->Carne: +1\n-->Miolos: +2\n-->Tripas: +2\n\nRótulos: Patéticos, Astutos, Famintos, Desmortos, Barulhentos, Fiéis e Criativos"
+    }
+]

@@ -1398,9 +1398,7 @@ async def rem_mov(interaction: discord.Interaction, nome_movimento: str):
         f"O movimento {nome_movimento} foi excluído", ephemeral=True)
 
 
-@bot.tree.command(
-    name="mostrar_ficha",
-    description="Mostra todos os dados da ficha ativa do jogador.")
+@bot.tree.command(name="mostrar_ficha",description="Mostra todos os dados da ficha ativa do jogador.")
 async def mostrar_ficha(interaction: discord.Interaction):
     # Obter o ID do usuário
     user_id = interaction.user.id
@@ -1425,18 +1423,21 @@ async def mostrar_ficha(interaction: discord.Interaction):
 
         dados_ficha.pop('user_id', None)
         dados_ficha.pop('ficha_ativa_id', None)
+        resposta2 = ""
+        resposta3 = ""
+        resposta4 = ""
 
         # Formatar os dados da ficha em um texto
         resposta = "**Dados da sua ficha ativa:**\n\n"
         for key, value in dados_ficha.items():
             if key == 'inventario':
-                resposta += "\n**Inventário**\n" + formatar_inventario(
+                resposta2 += "\n**Inventário**\n" + formatar_inventario(
                     value) + "\n"
             elif key == 'movimentos':
-                resposta += "\n**Movimentos**\n" + formatar_movimentos(
+                resposta3 += "\n**Movimentos**\n" + formatar_movimentos(
                     value) + "\n"
             elif key == 'vinculos':
-                resposta += "\n**Vínculos**\n" + formatar_vinculos(
+                resposta4 += "\n**Vínculos**\n" + formatar_vinculos(
                     value) + "\n"
             else:
                 resposta += f"**{key.replace('_', ' ').capitalize()}:** {value}\n"
@@ -1448,7 +1449,12 @@ async def mostrar_ficha(interaction: discord.Interaction):
         for parte in partes:
             await interaction.followup.send(parte)
     else:
-        await interaction.response.send_message(resposta)
+        await interaction.response.defer()
+        await interaction.followup.send(resposta)
+
+    await interaction.followup.send(resposta2)
+    await interaction.followup.send(resposta3)
+    await interaction.followup.send(resposta4)
 
 
 @bot.tree.command(name="exportar_ficha",
