@@ -2472,7 +2472,7 @@ async def cura(interaction: discord.Interaction, quantidade: int = 0):
 
 @bot.tree.command(name="anotar", description="Adiciona algo às suas anotações")
 @app_commands.describe(texto="Texto a ser adicionado")
-async def cura(interaction: discord.Interaction, texto: str):
+async def anotar(interaction: discord.Interaction, texto: str):
     # Recuperar o ID do jogador (supondo que interaction: discord.Interaction.user.id seja o ID do jogador)
     user_id = interaction.user.id
     cursor.execute(
