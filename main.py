@@ -2585,7 +2585,7 @@ async def help_mb(interaction: discord.Interaction):
     help_message = ""
 
     for movi in lista:
-        help = help + f"`{movi}`\n"
+        help_message = help_message + f"`{movi}`\n"
 
     # Envia a mensagem de ajuda
     await interaction.response.send_message(help_message)
